@@ -2,6 +2,12 @@
 
 ### Additions and New Features
 
+- Add the player guide covering both cycle-clear goals, queued turns, priming,
+  enemies, bonuses, sound settings, and browser persistence; link it from README.
+
+- Replace hot-start dots and returning-enzyme circles with editable activator
+  and eyes SVG sprites.
+
 - Celebrate cycle clearance with changing wall colors, five confetti bursts, and
   a victory banner. Reduced motion keeps a steady wall glow and banner.
 
@@ -61,6 +67,12 @@
   returning enemy state, and delayed Exo degradation of covered edges.
 
 ### Fixes and Maintenance
+
+- Add an explicit acceptance ledger separating focused test evidence from missing
+  artwork, full-run gameplay, performance, and release gates.
+
+- Verify that early player turns remain queued until a legal junction and that
+  a legal direction resumes movement after a wall stop.
 
 - Keep arrow/WASD controls active when dashboard buttons have focus, avoiding
   apparent movement lockups after changing settings. Preserve editable-field

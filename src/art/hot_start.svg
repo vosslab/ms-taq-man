@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Hot-start activator</title>
+  <g id="hot_start_halo" fill="#633e22" stroke="#ffdc70" stroke-width="3">
+    <circle cx="32" cy="32" r="26"/>
+  </g>
+  <g id="hot_start_energy" stroke-linejoin="round">
+    <path d="M35 8L17 35H29L26 56L48 27H35Z" fill="#ffb347" stroke="#fff1ab" stroke-width="3"/>
+    <path d="M35 15L24 32H34L30 46L42 30H32Z" fill="#fff1ab"/>
+  </g>
+</svg>

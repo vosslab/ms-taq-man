@@ -14,5 +14,7 @@ export function loadSprites(): Map<SpriteName, HTMLImageElement> {
   load("chelate");
   load("rnase");
   load("reagent_magnesium");
+  load("hot_start");
+  load("eaten_eyes");
   return atlas;
 }

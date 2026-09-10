@@ -32,3 +32,18 @@ test("a partial corridor reversal does not synthesize an entire edge", () => {
   advancePlayer(player, maze, new Set(), 1, (id) => edges.push(id));
   assert.equal(edges.length, 1);
 });
+
+test("an early turn stays buffered until the junction and movement resumes from a wall", () => {
+  const maze = parseMaze(["#######", "###...#", "#P..###", "#######"]);
+  const player = createPlayer(maze);
+  const primers = new Set(maze.primers.map(tileKey));
+  queueDirection(player.actor, "right");
+  advancePlayer(player, maze, primers, 0.25, () => {});
+  queueDirection(player.actor, "up");
+  advancePlayer(player, maze, primers, 2.75, () => {});
+  assert.equal(tileKey(player.actor.position), "3,1");
+  assert.equal(player.actor.destination, undefined);
+  queueDirection(player.actor, "right");
+  advancePlayer(player, maze, primers, 1, () => {});
+  assert.equal(tileKey(player.actor.position), "4,1");
+});

@@ -73,9 +73,15 @@ export function createRenderer(
     const location = actorLocation(game.player.actor, maze);
     for (const activator of maze.activators) {
       if (!game.activators.has(tileKey(activator))) continue;
-      context.beginPath();
-      context.arc((activator.x + 0.5) * 24, (activator.y + 0.5) * 24, 6, 0, Math.PI * 2);
-      context.fill();
+      const power = atlas.get("hot_start");
+      if (power?.complete && power.naturalWidth)
+        context.drawImage(
+          power,
+          (activator.x + 0.5) * 24 - 9,
+          (activator.y + 0.5) * 24 - 9,
+          18,
+          18,
+        );
     }
     const taq = atlas.get("taq_man");
     if (game.phase === "dying") {
@@ -96,8 +102,8 @@ export function createRenderer(
     };
     for (const enzyme of game.enzymes) {
       const enemy = actorLocation(enzyme.actor, maze);
-      const sprite = atlas.get(enzyme.name);
-      if (sprite?.complete && sprite.naturalWidth && enzyme.mode !== "eaten") {
+      const sprite = atlas.get(enzyme.mode === "eaten" ? "eaten_eyes" : enzyme.name);
+      if (sprite?.complete && sprite.naturalWidth) {
         context.save();
         if (enzyme.mode === "frightened") {
           const expiring = game.frightened < 2;
