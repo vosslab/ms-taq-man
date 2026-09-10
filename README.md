@@ -31,7 +31,7 @@ Click **Start cycle**, then use arrow keys or WASD. Press Left from the starting
 position to reach a nearby primer; keep moving and watch your helix and base count
 grow. Queue turns before junctions. Use Escape or the pause button to take a break.
 
-On touchscreens, use the direction pad or swipe on the maze. Set difficulty to
+On touchscreens, swipe on the maze. Set difficulty to
 **1 - Chill** for slower enemies. Music and effects start muted; their buttons say
 what clicking will do. Your best score and settings survive browser reloads.
 

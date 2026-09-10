@@ -1,5 +1,10 @@
 # Human guidance
 
+- Maze layouts should form clear corridors without broad open floor areas,
+  especially around the enzyme house and tunnel approaches.
+
+- Favor arrow keys for steering; the on-screen direction pad is unnecessary.
+
 - Lean further into the logo's playful style details; the additional flair is welcome.
 
 - Give buddy/clamp-built DNA a different color so its contribution is visible.

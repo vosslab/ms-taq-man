@@ -65,4 +65,6 @@ if compgen -G 'tests/test_*.mjs' >/dev/null; then
 else
 	echo "==> SKIP test:node (no tests/test_*.mjs files present)"
 fi
+echo "==> validate:levels"
+node --import tsx tests/e2e/validate_levels.mjs
 echo "PASS: codebase checks passed."

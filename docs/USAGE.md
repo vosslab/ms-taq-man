@@ -37,8 +37,8 @@ shows rescue readiness. Each new cycle offers a fresh clamp to collect.
 | Steer | Arrow keys or WASD |
 | Queue a turn | Press the direction before reaching a junction |
 | Reverse | Press the opposite direction |
-| Touch steering | Direction pad or swipe on the maze |
-| Pause or resume | Escape, main button, or center pad button |
+| Touch steering | Swipe on the maze |
+| Pause or resume | Escape or the main button |
 | Begin or restart | Start cycle or Start new run |
 
 Taq keeps moving until blocked. A queued turn takes effect at the next legal

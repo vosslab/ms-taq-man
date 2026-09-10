@@ -44,7 +44,7 @@ simulation never reads UI signals.
 
 Keyboard input is window-scoped so dashboard focus does not disable steering.
 Editable fields and modified shortcuts retain their normal behavior. Swipe and
-direction-pad input call the same direction event path.
+keyboard input call the same direction event path.
 
 ## Rendering and audio
 

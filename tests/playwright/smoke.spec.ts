@@ -55,13 +55,13 @@ test("cabinet boots with a responsive canvas", async ({ page }) => {
   await expect(page.getByLabel("High score", { exact: true })).toHaveText(highScore ?? "");
 });
 
-test("400px touch controls are reachable and steer the player", async ({ page }) => {
+test("400px layout supports keyboard steering and pause", async ({ page }) => {
   await page.setViewportSize({ width: 400, height: 900 });
   await page.goto("/");
   await page.getByRole("button", { name: "Start cycle" }).click();
-  await page.getByRole("button", { name: "Move left", exact: true }).click();
+  await page.keyboard.press("ArrowLeft");
   await expect(page.getByLabel("Bases synthesized")).not.toHaveText("0");
-  await page.getByRole("button", { name: "Pause or resume" }).click();
+  await page.keyboard.press("Escape");
   await expect(page.getByRole("status").filter({ hasText: "Paused" })).toBeVisible();
   await page.screenshot({ path: "test-results/mobile_controls.png", fullPage: true });
 });

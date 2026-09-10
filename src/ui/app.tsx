@@ -6,7 +6,6 @@ import { createGame, recordEvent, startGame } from "../game/game_state";
 import { startGameLoop } from "./game_loop";
 import type { Direction } from "../game/coords";
 import { defaultSave, readSave, writeSave } from "../game/save";
-import { TouchControls } from "./touch_controls";
 import { attachSwipe } from "./input";
 import { createSoundEffects } from "./sound_effects";
 import { createMusic } from "./music";
@@ -195,94 +194,96 @@ export function App(): JSX.Element {
         </h1>
       </header>
       <div class="game-stage">
-        <div
-          class="maze-screen"
-          classList={{ scanlines: scanlineStrength() > 0 }}
-          style={{ "--scanline-opacity": String(0.14 + scanlineStrength() * 0.12) }}
-        >
-          <canvas
-            ref={(element) => {
-              canvas = element;
-            }}
-            aria-label="DNA template maze"
-            tabindex="0"
-          />
-        </div>
+        <section class="playfield" aria-label="Game board">
+          <div
+            class="maze-screen"
+            classList={{ scanlines: scanlineStrength() > 0 }}
+            style={{ "--scanline-opacity": String(0.14 + scanlineStrength() * 0.12) }}
+          >
+            <canvas
+              ref={(element) => {
+                canvas = element;
+              }}
+              aria-label="DNA template maze"
+              tabindex="0"
+            />
+          </div>
+        </section>
         <aside class="game-sidebar" aria-label="Game dashboard">
-          <button
-            onClick={() => {
-              if (game.phase === "attract" || game.phase === "game_over") startGame(game);
-              else game.paused = !game.paused;
-              void unlockMusic();
-              canvas.focus();
-            }}
-          >
-            {hud.phase() === "attract"
-              ? "Start cycle"
-              : hud.phase() === "game_over"
-                ? "Start new run"
-                : hud.paused()
-                  ? "Resume game"
-                  : "Pause game"}
-          </button>
-          <button
-            aria-pressed={!muted()}
-            onClick={() => {
-              void toggleMusic();
-            }}
-          >
-            Turn music {muted() ? "on" : "off"}
-          </button>
-          <button
-            onClick={() => {
-              void toggleFx();
-            }}
-          >
-            Turn FX {fxMuted() ? "on" : "off"}
-          </button>
-          <span aria-live="polite">{audioMessage()}</span>
-          <label class="scanline-strength">
-            Scanline strength:{" "}
-            <output>{scanlineStrength() === 0 ? "Off" : scanlineStrength()}</output> / 5
-            <input
-              type="range"
-              min="0"
-              max="5"
-              step="1"
-              value={scanlineStrength()}
-              aria-label="Scanline strength"
-              onInput={(event) => {
-                const value = event.currentTarget.valueAsNumber;
-                setScanlineStrength(value);
-                rememberStrength(value);
+          <div class="dashboard-actions">
+            <button
+              onClick={() => {
+                if (game.phase === "attract" || game.phase === "game_over") startGame(game);
+                else game.paused = !game.paused;
+                void unlockMusic();
+                canvas.focus();
               }}
-            />
-          </label>
+            >
+              {hud.phase() === "attract"
+                ? "Start cycle"
+                : hud.phase() === "game_over"
+                  ? "Start new run"
+                  : hud.paused()
+                    ? "Resume game"
+                    : "Pause game"}
+            </button>
+            <button
+              aria-pressed={!muted()}
+              onClick={() => {
+                void toggleMusic();
+              }}
+            >
+              Turn music {muted() ? "on" : "off"}
+            </button>
+            <button
+              onClick={() => {
+                void toggleFx();
+              }}
+            >
+              Turn FX {fxMuted() ? "on" : "off"}
+            </button>
+          </div>
+          <span class="audio-message" aria-live="polite">
+            {audioMessage()}
+          </span>
+          <div class="dashboard-settings">
+            <label class="scanline-strength">
+              Scanline strength:{" "}
+              <output>{scanlineStrength() === 0 ? "Off" : scanlineStrength()}</output> / 5
+              <input
+                type="range"
+                min="0"
+                max="5"
+                step="1"
+                value={scanlineStrength()}
+                aria-label="Scanline strength"
+                onInput={(event) => {
+                  const value = event.currentTarget.valueAsNumber;
+                  setScanlineStrength(value);
+                  rememberStrength(value);
+                }}
+              />
+            </label>
+            <label class="scanline-strength">
+              Difficulty: {difficulty()} / 5 · {difficultyLabel(difficulty())}
+              <input
+                type="range"
+                min="1"
+                max="5"
+                step="1"
+                value={difficulty()}
+                aria-label="Difficulty"
+                onInput={(event) => {
+                  const value = event.currentTarget.valueAsNumber;
+                  setDifficulty(value);
+                  rememberDifficulty(value);
+                }}
+              />
+              Lower settings slow enemies and reduce required coverage. Change anytime.
+            </label>
+          </div>
           <Overlays phase={hud.phase()} paused={hud.paused()} timer={hud.transitionTimer()} />
-          <label class="scanline-strength">
-            Difficulty: {difficulty()} / 5 · {difficultyLabel(difficulty())}
-            <input
-              type="range"
-              min="1"
-              max="5"
-              step="1"
-              value={difficulty()}
-              aria-label="Difficulty"
-              onInput={(event) => {
-                const value = event.currentTarget.valueAsNumber;
-                setDifficulty(value);
-                rememberDifficulty(value);
-              }}
-            />
-            Lower settings slow enemies and reduce required coverage. Change anytime.
-          </label>
           <Hud signals={hud} highScore={highScore()} />
-          <TouchControls
-            move={move}
-            pause={() => {
-              game.paused = !game.paused;
-            }}
-          />
         </aside>
       </div>
       <footer>Anneal. Extend. Survive.</footer>

@@ -52,12 +52,6 @@ canvas { touch-action: none; }
 }
 button { color: var(--color-text); background: #173347; border: 1px solid #50cff7; border-radius: 12px; cursor: pointer; }
 button:focus-visible, canvas:focus-visible { outline: 3px solid var(--color-primer); outline-offset: 3px; }
-.touch-controls { display: grid; grid-template-columns: repeat(3, 64px); grid-template-rows: repeat(3, 56px); gap: 6px; justify-content: center; margin: 16px auto; }
-.touch-controls .up { grid-area: 1 / 2; }
-.touch-controls .left { grid-area: 2 / 1; }
-.touch-controls .pause { grid-area: 2 / 2; }
-.touch-controls .right { grid-area: 2 / 3; }
-.touch-controls .down { grid-area: 3 / 2; }
 @media (max-width: 740px) {
   .game-stage { grid-template-columns: 1fr; }
   .cabinet { max-width: 540px; }
@@ -87,4 +81,28 @@ button:focus-visible, canvas:focus-visible { outline: 3px solid var(--color-prim
   button { background: #e0eef4; border-color: #39768e; }
   button:focus-visible { outline-color: #805000; }
   footer { color: #17644d; }
+}
+.playfield { min-width: 0; }
+.game-sidebar { display: flex; flex-direction: column; gap: 14px; }
+.game-sidebar p { margin: 0; }
+.dashboard-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.dashboard-actions button { padding: 10px; margin: 0; }
+.dashboard-actions button:first-child { grid-column: 1 / -1; border-color: var(--color-strand); }
+.dashboard-settings { display: grid; gap: 12px; padding-block: 12px; border-block: 1px solid #537084; }
+.dashboard-settings label { margin: 0; }
+.audio-message:empty, .game-sidebar .reward-message:empty, .helper-group p:empty { display: none; }
+.game-sidebar .reward-message { min-height: 0; padding: 10px; border-left: 3px solid var(--color-primer); background: #173347; color: #ffdc70; border-radius: 6px; }
+.game-sidebar .phase-panel { margin: 0; }
+.phase-panel p { margin-top: 8px; }
+.score-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.game-sidebar .stat { padding: 10px 8px; border: 1px solid #537084; border-radius: 10px; font-size: .75rem; }
+.stat output { display: block; font-size: clamp(1rem, 1.5vw, 1.4rem); overflow-wrap: anywhere; margin-top: 4px; }
+.game-sidebar .bases-stat output { color: var(--color-strand); }
+.game-sidebar .best-stat output { color: #d4a0ff; }
+.run-status { font-size: .85rem; opacity: .85; }
+.progress-group, .helper-group { display: grid; gap: 10px; border-top: 1px solid #537084; padding-top: 14px; }
+.taq-key { color: var(--color-strand); }
+.clamp-key { color: #d4a0ff; }
+@media (prefers-color-scheme: light) {
+  .game-sidebar .best-stat output, .clamp-key { color: #75409a; }
 }

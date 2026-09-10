@@ -2,6 +2,46 @@
 
 ### Additions and New Features
 
+- Preserve the successful 48-input browser route as a controlled-clock Playwright
+  acceptance test, asserting cycle completion and the amplified-template guidance
+  through keyboard input alone.
+
+- Verify a production-browser cycle through 48 arrow-key inputs and the normal
+  animation loop. Easy clears at 60.3% with three lives; capture the resulting
+  celebration and document the controlled-clock evidence limits.
+
+- Test clamp shielding against simultaneous overlapping enemies across repeated
+  collision checks: lives remain intact, capture score stays zero, and enemies
+  retain their normal state.
+
+- Replace internal phase identifiers in the dashboard with readable labels such
+  as Replicating and Run complete; use correct singular life/copy wording.
+
+- Run the production-level validator from check_codebase.sh so corridor geometry,
+  reachability, house routing, and tunnel checks are part of normal verification.
+
+- Group dashboard controls, settings, score tiles, cycle goals, and helper status
+  with consistent spacing and distinct number colors. Collapse empty message gaps.
+- Add `node --import tsx tests/e2e/validate_levels.mjs` to check all four layouts:
+  parsing/connectivity, no open 2x2 rooms, pickup reachability, enemy house-return
+  paths, and tunnel links. All four pass.
+
+- Tighten cycles 2-4 into single-tile corridors, removing broad floor patches
+  around the enzyme house and tunnels and pruning resulting empty spurs. Add a
+  production-layout invariant forbidding open 2x2 rooms. Verify connectivity,
+  house return, reagent tours, clamp pickup, and all Chill/Easy traversal runs.
+- Revised-layout continuous Easy traversal reaches cycle 5 with two lives in
+  139 simulated seconds. Cycle 2 costs the driver two lives; human difficulty
+  equivalence is not established by these movement checks.
+
+- Remove the on-screen direction pad and its unused component/styles. Lead with
+  arrow-key steering, retain WASD and maze swipes, and update controls documentation
+  and the narrow-layout keyboard regression.
+
+- Move the direction pad directly beneath the maze, keeping steering controls
+  near the board on mobile instead of below the long dashboard. Keep one shared
+  control instance and preserve scanline bounds around the canvas only.
+
 - Embellish the logo with a molecular bow, nucleotide beads, layered lettering,
   a curved neon underline, and gently shimmering stars. Respect reduced motion.
 

@@ -85,6 +85,16 @@ export function createGameSignals(initial: Readonly<Game>): GameSignals {
           .filter(Boolean)
           .join(" · "),
       );
+      const phaseLabel: Record<Game["phase"], string> = {
+        attract: "Ready to start",
+        ready: "Get ready",
+        playing: "Replicating",
+        dying: "Refolding",
+        game_over: "Run complete",
+        cycle_complete: "Cycle complete",
+        intermission: "Thermal cycling",
+      };
+      const copies = copyNumber(game.cycle - 1);
       setStatus(
         game.paused
           ? "Paused - Escape to resume"
@@ -92,7 +102,7 @@ export function createGameSignals(initial: Readonly<Game>): GameSignals {
             ? thermal
             : game.phase === "dying"
               ? "ENZYME DENATURED - refolding for another run"
-              : `Cycle ${game.cycle} - ${game.phase} - ${game.lives} lives - ${copyNumber(game.cycle - 1)} copies`,
+              : `Cycle ${game.cycle} - ${phaseLabel[game.phase]} - ${game.lives} ${game.lives === 1 ? "life" : "lives"} - ${copies} ${copies === "1" ? "copy" : "copies"}`,
       );
     });
   }

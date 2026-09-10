@@ -29,3 +29,20 @@ test("walls and house are excluded from the template graph", () => {
   }
   assert.equal(walkable(maze, maze.house), false);
 });
+
+test("production mazes have narrow corridors without open two-by-two rooms", () => {
+  for (let cycle = 1; cycle <= 4; cycle++) {
+    const maze = mazeForCycle(cycle);
+    for (let y = 0; y < maze.height - 1; y++) {
+      for (let x = 0; x < maze.width - 1; x++) {
+        const room = [
+          [x, y],
+          [x + 1, y],
+          [x, y + 1],
+          [x + 1, y + 1],
+        ].every(([a, b]) => walkable(maze, tile(a, b)));
+        assert.equal(room, false, `Open room in cycle ${cycle} at ${x},${y}`);
+      }
+    }
+  }
+});

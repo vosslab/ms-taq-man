@@ -268,3 +268,15 @@ test("lowering difficulty applies its coverage goal to the current cycle", () =>
   tick(game, 0);
   assert.equal(game.phase, "cycle_complete");
 });
+
+test("clamp shield handles a crowd without eating enemies or awarding captures", () => {
+  const game = createGame();
+  game.phase = "playing";
+  game.buddy.active = true;
+  for (const enemy of game.enzymes) enemy.actor = createActor(game.player.actor.position);
+  tick(game, 0);
+  tick(game, 0);
+  assert.equal(game.lives, 3);
+  assert.equal(game.bonusScore, 0);
+  assert.ok(game.enzymes.every((enemy) => enemy.mode !== "eaten"));
+});

@@ -12,11 +12,13 @@ export function Overlays(props: {
       <Switch>
         <Match when={props.paused}>
           <h2>Take a breath</h2>
-          <p>Press Escape on the maze or use Pause to resume.</p>
+          <p>Press Escape on the maze or use the Resume game button.</p>
         </Match>
         <Match when={props.phase === "attract"}>
           <h2>Ready to replicate?</h2>
-          <p>Start a cycle, then steer with arrow keys, WASD, or the direction pad.</p>
+          <p>
+            Start a cycle, then steer with arrow keys or WASD. On touch screens, swipe the maze.
+          </p>
         </Match>
         <Match when={props.phase === "ready"}>
           <h2>Find your first primer</h2>
