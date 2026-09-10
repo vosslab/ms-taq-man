@@ -18,4 +18,12 @@
 //   ];
 //
 // Default: no local overrides.
-export default [];
+import solid from "eslint-plugin-solid";
+
+export default [
+  {
+    files: ["src/**/*.tsx"],
+    plugins: { solid },
+    rules: solid.configs.typescript.rules,
+  },
+];

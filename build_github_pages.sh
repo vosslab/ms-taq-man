@@ -31,6 +31,8 @@ if [ -f "src/main.ts" ]; then
 elif [ -f "src/init.ts" ]; then
 	ENTRY="src/init.ts"
 	echo "WARNING: using legacy src/init.ts. Rename to src/main.ts." >&2
+elif [ -f "src/main.tsx" ]; then
+	ENTRY="src/main.tsx"
 else
 	echo "ERROR: no entry point. Create src/main.ts (preferred) or src/init.ts." >&2
 	exit 1
@@ -62,14 +64,7 @@ mkdir -p dist
 
 npx tsc --noEmit -p tsconfig.json
 
-npx esbuild "$ENTRY" \
-	--bundle \
-	--format=esm \
-	--target=es2020 \
-	--platform=browser \
-	--minify \
-	--sourcemap \
-	--outfile=dist/main.js
+node pipeline/build.mjs "$ENTRY"
 
 cp src/index.html dist/index.html
 cp src/style.css dist/style.css

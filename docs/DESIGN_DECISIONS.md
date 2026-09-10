@@ -68,6 +68,20 @@ the existing source-file gate permits fewer than 1000 lines.
 
 ## Dependencies
 
+### Solid compilation requires local build exceptions
+
+**Decision.** Use the esbuild Solid plugin through [../pipeline/build.mjs](../pipeline/build.mjs),
+  preserve JSX with the Solid import source in [../tsconfig.json](../tsconfig.json), and invoke
+  the builder from [../build_github_pages.sh](../build_github_pages.sh).
+
+**Why.** The esbuild CLI cannot apply the Solid JSX compiler plugin.
+
+**Consequence.** Reapply these manual exceptions after template propagation. Keep Solid lint
+  configuration in the consumer-owned ESLint override. Runtime code is bundled locally;
+  no CDN scripts are required (ASVS 15.2.3).
+
+**Owner.** [../pipeline/build.mjs](../pipeline/build.mjs) and [SOLID_MODEL.md](SOLID_MODEL.md).
+
 ## Generated artifacts
 
 ### Graphify agent guidance lives in the propagated devel README
