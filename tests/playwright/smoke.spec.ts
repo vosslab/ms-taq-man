@@ -91,7 +91,9 @@ test("dashboard focus does not disable keyboard movement", async ({ page }) => {
   await expect(page.getByRole("button", { name: "Resume game" })).toBeVisible();
 });
 
-test("scanline strength saves endpoints and keyboard adjustment does not steer", async ({ page }) => {
+test("scanline strength saves endpoints and keyboard adjustment does not steer", async ({
+  page,
+}) => {
   await page.goto("/");
   const strength = page.getByRole("slider", { name: "Scanline strength" });
   await strength.focus();

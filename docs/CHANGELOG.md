@@ -2,6 +2,12 @@
 
 ### Additions and New Features
 
+- Shift the soundtrack toward playful electronic music: filtered plucks, syncopated
+  low bass, seventh chords, synthesized kick/snare/hi-hats, and drum fills.
+
+- Describe available reagent powers in the dashboard and document combo scoring
+  and the seven helpful pickup effects in the player guide.
+
 - Consolidate scanlines into one 0-5 slider, with zero disabling the effect.
 
 - Add persisted scanline strength from 1 to 5, defaulting to 3. Retain the separate
@@ -79,6 +85,9 @@
   returning enemy state, and delayed Exo degradation of covered edges.
 
 ### Fixes and Maintenance
+
+- Verify collection effects for all reagent powers, including bonus points,
+  boost timers, combo activation, and cancellation of scheduled chew-back.
 
 - Add browser coverage for keyboard-adjusted scanline endpoints and persistence,
   and update the player guide for the unified slider.

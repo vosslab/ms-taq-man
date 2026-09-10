@@ -3,6 +3,7 @@ import type { Accessor } from "solid-js";
 import type { Game } from "../game/game_state";
 import { coveragePercent } from "../game/coverage";
 import { copyNumber } from "../game/score";
+import { reagentDescription } from "../game/bonus";
 
 type HudValues = {
   phase: Game["phase"];
@@ -17,6 +18,7 @@ type HudValues = {
   hotStart: number;
   boosts: string;
   rewardMessage: string;
+  reagent: string;
 };
 export type GameSignals = { [Key in keyof HudValues]: Accessor<HudValues[Key]> } & {
   push: (game: Readonly<Game>) => void;
@@ -35,6 +37,7 @@ export function createGameSignals(initial: Readonly<Game>): GameSignals {
   const [hotStart, setHotStart] = createSignal(0);
   const [boosts, setBoosts] = createSignal("");
   const [rewardMessage, setRewardMessage] = createSignal("");
+  const [reagent, setReagent] = createSignal("");
 
   function push(game: Readonly<Game>): void {
     const thermal =
@@ -53,6 +56,7 @@ export function createGameSignals(initial: Readonly<Game>): GameSignals {
       setPrimersLeft(game.primers.size);
       setExtending(game.player.primed);
       setHotStart(Math.ceil(game.frightened));
+      setReagent(game.bonus ? `${game.bonus.name}: ${reagentDescription(game.bonus.name)}` : "");
       setRewardMessage(game.rewards.messageTimer > 0 ? game.rewards.message : "");
       setBoosts(
         [
@@ -90,6 +94,7 @@ export function createGameSignals(initial: Readonly<Game>): GameSignals {
     hotStart,
     boosts,
     rewardMessage,
+    reagent,
     push,
   };
 }

@@ -30,6 +30,7 @@ export function Hud(props: { signals: GameSignals; highScore: number }): JSX.Ele
       </p>
       <p>Clear the cycle: synthesize 50% OR collect every primer.</p>
       <p aria-label="Active boosts">{props.signals.boosts()}</p>
+      <p aria-label="Available reagent">{props.signals.reagent()}</p>
       <p aria-label="Hot-start protection">
         Hot start:{" "}
         {props.signals.hotStart() > 0 ? `${props.signals.hotStart()} seconds` : "inactive"}

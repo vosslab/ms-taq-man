@@ -135,3 +135,30 @@ test("scheduled degradation preserves the strand until its due time", () => {
   tick(game, 0.05);
   assert.equal(game.coverage.covered.has(id), false);
 });
+
+test("each reagent grants its helpful power on collection", () => {
+  for (const name of ["dNTP mix", "BSA", "DMSO", "betaine", "glycerol"]) {
+    const game = createGame();
+    game.phase = "playing";
+    game.enzymes = [];
+    game.bonus = createBonus(game.maze, 1);
+    game.bonus.name = name;
+    game.bonus.actor = createActor(game.maze.start);
+    const edge = game.maze.edges.keys().next().value;
+    game.chewQueue.set(edge, 20);
+    tick(game, 0);
+    assert.equal(game.bonus, undefined);
+    assert.equal(game.lives, 3);
+    assert.equal(game.bonusScore, name === "dNTP mix" ? 600 : 100);
+    if (name === "BSA" || name === "glycerol") {
+      assert.equal(game.rewards.shieldTimer, name === "BSA" ? 10 : 5);
+      assert.equal(game.chewQueue.size, 0);
+    }
+    if (name === "DMSO" || name === "glycerol")
+      assert.equal(game.rewards.speedTimer, name === "DMSO" ? 8 : 5);
+    if (name === "betaine") {
+      assert.equal(game.rewards.combo, 24);
+      assert.equal(game.rewards.comboTimer, 10);
+    }
+  }
+});

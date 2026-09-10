@@ -44,6 +44,23 @@ Moving reagent bonuses enter through a tunnel and eventually leave. Collect them
 for extra points. Four maze layouts rotate as cycles advance. The copy counter
 shows amplification progress separately from your score.
 
+Fresh synthesis builds a combo if you keep finding new links within three seconds.
+Every eight links increases the scoring multiplier, up to x4. Losing the combo
+never removes points. Reagent pickups also help you:
+
+| Reagent | Extra benefit |
+| --- | --- |
+| Mg2+ | Four seconds of hot-start protection |
+| dNTP mix | 500 bonus points |
+| BSA | Ten seconds without new chew-back; cancels pending chew-back |
+| DMSO | Eight seconds of faster movement |
+| Betaine | Starts a x4 synthesis combo |
+| Hot-start antibody | Ten seconds of hot-start protection |
+| Glycerol | Five seconds of speed and DNA protection |
+
+The dashboard identifies the available reagent and shows active boosts. DNA
+protection prevents chew-back; hot-start protection lets you capture enemies.
+
 ## Sound and display
 
 - **Turn music on/off** controls the soundtrack.

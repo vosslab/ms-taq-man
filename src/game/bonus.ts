@@ -14,6 +14,26 @@ export const reagents = [
   "hot-start antibody",
   "glycerol",
 ];
+export function reagentDescription(name: string): string {
+  switch (name) {
+    case "Mg2+":
+      return "4 seconds of hot-start protection";
+    case "dNTP mix":
+      return "500 extra points";
+    case "BSA":
+      return "10 seconds of DNA protection from chew-back";
+    case "DMSO":
+      return "8 seconds of faster movement";
+    case "betaine":
+      return "Start a x4 synthesis combo";
+    case "hot-start antibody":
+      return "10 seconds of hot-start protection";
+    case "glycerol":
+      return "5 seconds of speed and DNA protection";
+    default:
+      return "Bonus points";
+  }
+}
 export type Bonus = {
   actor: Actor;
   name: string;
