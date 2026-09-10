@@ -32,8 +32,6 @@ remaining boundary.
 | Arrow keys, WASD, swipe, and dashboard focus | **Verified** | Arrow keys are the primary documented input; browser smoke tests cover keyboard focus and 400 px swipe input. |
 | Dramatic death, celebration, scanlines, and independent sound controls | **Verified / sensory limit** | Static captures and source verify the visual states and controls. Earlier attended play feedback covered sound, scanlines, and pacing; static images cannot prove motion rhythm or audio mix. |
 
-![Keyboard-driven cycle completion](../../screenshots/browser_cycle.png)
-
 ## Browser acceptance run
 
 The long driver at `tests/playwright/e2e/browser_traversal.mjs` uses real
@@ -64,5 +62,5 @@ measure human skill, subjective pacing, or real-time performance on every device
   Python 3.12; no Python source changed.
 - `git diff --check`: passed during documentation closeout.
 
-The build is ready for a GitHub Pages deployment workflow, but this repository
-does not claim that an external deployment has been performed.
+The [live GitHub Pages game](https://vosslab.github.io/ms-taq-man/) returned HTTP 200 during the
+2026-09-10 documentation closeout.

@@ -1,22 +1,17 @@
 # Final art and interface review
 
-Reviewed 2026-09-09 from the maintained documentation captures, current SVG
+Reviewed 2026-09-10 from the maintained documentation captures, current SVG
 sources, and the regenerated native-detail sprite atlas. This is visual
 acceptance evidence, not a claim that still images can evaluate sound or motion
 timing.
 
 ## Captures
 
-- `gameplay.png`: 1920 x 1200 desktop cabinet.
-- `gameplay_mobile.png`: 400 x 1297 stacked mobile view.
-- `browser_death.png`: full-board polymerase denaturation.
-- `browser_cycle.png`: cycle-complete celebration.
-- `full_nests.png`: four fully synthesized templates.
+- `gameplay.png`: content-trimmed dark capture from the 1920 x 1200 desktop cabinet.
+- `full_nests.png`: content-trimmed dark composite of four fully synthesized templates.
 - `test-results/sprite_atlas.png`: 22 editable source sprites at native detail.
 
 ![Four full template nests](../../screenshots/full_nests.png)
-
-![Keyboard-driven cycle celebration](../../screenshots/browser_cycle.png)
 
 ## Findings
 

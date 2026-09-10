@@ -22,7 +22,7 @@ export function App(): JSX.Element {
   const hud = createGameSignals(game);
   const music = createMusic();
   const effects = createSoundEffects();
-  const [fxMuted, setFxMuted] = createSignal(true);
+  const [fxMuted, setFxMuted] = createSignal(false);
   let rememberFx: (value: boolean) => void = () => {};
   async function toggleFx(): Promise<void> {
     if (fxMuted()) {
@@ -37,7 +37,7 @@ export function App(): JSX.Element {
     rememberFx(fxMuted());
     setAudioMessage("");
   }
-  const [muted, setMuted] = createSignal(true);
+  const [muted, setMuted] = createSignal(false);
   const [scanlineStrength, setScanlineStrength] = createSignal(3);
   let rememberStrength: (value: number) => void = () => {};
   const [audioMessage, setAudioMessage] = createSignal("");

@@ -10,8 +10,6 @@ live game with a top-level freeze. That projection is intentionally not describe
 as recursively immutable: nested copied collections remain ordinary copies. It
 is sufficient for observation because the driver never writes it or the live game.
 
-![Cycle completion from the browser traversal](../../screenshots/browser_cycle.png)
-
 ## Recorded run
 
 | Cycle | Clear time | Deaths before clear | Final-edge interval |

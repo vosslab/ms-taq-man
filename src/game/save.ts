@@ -12,8 +12,8 @@ export function defaultSave(): Save {
   return {
     version: 2,
     highScore: 0,
-    muted: true,
-    fxMuted: true,
+    muted: false,
+    fxMuted: false,
     scanlines: true,
     scanlineStrength: 3,
     difficulty: 2,
@@ -48,8 +48,8 @@ export function decodeSave(raw: string | null): Save {
       value.difficulty <= 5
         ? value.difficulty
         : 2,
-    muted: "muted" in value && typeof value.muted === "boolean" ? value.muted : true,
-    fxMuted: "fxMuted" in value && typeof value.fxMuted === "boolean" ? value.fxMuted : true,
+    muted: "muted" in value && typeof value.muted === "boolean" ? value.muted : false,
+    fxMuted: "fxMuted" in value && typeof value.fxMuted === "boolean" ? value.fxMuted : false,
     scanlines:
       "scanlines" in value && typeof value.scanlines === "boolean" ? value.scanlines : true,
     scanlineStrength:

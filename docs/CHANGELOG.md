@@ -10,6 +10,23 @@
   rebuild threatened DNA more often, and distinguish synthesis, repair, rescue, distraction, and
   recharge states.
 
+### Behavior or Interface Changes
+
+- Enable music and sound effects by default for first-time players while preserving saved opt-outs
+  and the browser's click-to-start audio requirement.
+
+- Refresh the README as a player-facing landing page with a verified live GitHub Pages link, one
+  content-trimmed dark-mode capture of the 16:10 desktop game, a guided first cycle, and contributor
+  details placed after the playable experience. Update the capture harness to reproduce the source
+  view, trim the maintained screenshots to their content, and remove the light-mode captures.
+
+### Developer Tests and Notes
+
+- Confirm the live Pages endpoint returns HTTP 200, visually inspect the refreshed 1446x1056
+  content-trimmed dark capture with both audio controls enabled, pass all 60 Node checks and four
+  level validations through `./check_codebase.sh`, pass all 18 browser tests, and pass all 1,055
+  Python repository checks.
+
 ## 2026-09-09
 
 ### Additions and New Features

@@ -1,12 +1,12 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { decodeSave, defaultSave, readSave, writeSave } from "../src/game/save.ts";
-test("v1 high scores migrate with quiet defaults", () => {
+test("v1 high scores migrate with enabled audio defaults", () => {
   assert.deepEqual(decodeSave('{"version":1,"highScore":4200}'), {
     version: 2,
     highScore: 4200,
-    muted: true,
-    fxMuted: true,
+    muted: false,
+    fxMuted: false,
     scanlines: true,
     scanlineStrength: 3,
     difficulty: 2,

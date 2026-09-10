@@ -1,5 +1,10 @@
 # Human guidance
 
+- Enable music and sound effects by default for first-time players.
+
+- Keep the GitHub README user-facing. Link directly to the live GitHub Pages game and use a
+  content-trimmed dark-mode capture of the 16:10 desktop game layout.
+
 - Maze layouts should form clear corridors without broad open floor areas,
   especially around the enzyme house and tunnel approaches.
 

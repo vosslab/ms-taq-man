@@ -192,7 +192,7 @@ Each phase ends green on `./check_codebase.sh`.
 7. **Cycle loop**: maze rotation, level table, thermal-cycle interstitial, bonus reagents, game
    over, versioned high-score save.
 8. **Art pass**: author every SVG, wire generator and atlas, replace placeholders.
-9. **Polish**: attract mode, intermissions, CSS shell, touch controls, audio muted by default.
+9. **Polish**: attract mode, intermissions, CSS shell, touch controls, audio enabled by default.
 10. **Docs and tests**: README first paragraph (About-safe prose, live Pages URL below it),
     `docs/USAGE.md`, `docs/CODE_ARCHITECTURE.md`, `docs/FILE_STRUCTURE.md`,
     `docs/DESIGN_DECISIONS.md`, `docs/CHANGELOG.md` entries per phase.

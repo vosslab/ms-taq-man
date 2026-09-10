@@ -1,5 +1,6 @@
 // Run with the URL printed by ./run_web_server.sh.
-// Captures the desktop 16:10 cabinet and the stacked mobile dashboard.
+// Captures the 16:10 dark-mode desktop source used in the README.
+// Trim gameplay.png with `mogrify -trim` before embedding it.
 import { chromium } from "playwright";
 import fs from "node:fs/promises";
 const url = process.argv[2];
@@ -17,13 +18,13 @@ async function startAndPause(page) {
 const browser = await chromium.launch({ headless: true });
 try {
   await fs.mkdir("docs/screenshots", { recursive: true });
-  const desktop = await browser.newPage({ viewport: { width: 1920, height: 1200 } });
+  const desktop = await browser.newPage({
+    viewport: { width: 1920, height: 1200 },
+    colorScheme: "dark",
+    reducedMotion: "no-preference",
+  });
   await startAndPause(desktop);
   await desktop.screenshot({ path: "docs/screenshots/gameplay.png" });
-
-  const mobile = await browser.newPage({ viewport: { width: 400, height: 900 } });
-  await startAndPause(mobile);
-  await mobile.screenshot({ path: "docs/screenshots/gameplay_mobile.png", fullPage: true });
 } finally {
   await browser.close();
 }

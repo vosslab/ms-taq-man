@@ -97,8 +97,8 @@ Returning eyes retain their normal house-return speed at every difficulty.
 - **Turn music on/off** controls the soundtrack.
 - **Turn FX on/off** independently controls pickup, protection, reward, death,
   and completion cues.
-- Both sound channels start muted. Browsers require a click before audio can play;
-  after a reload, Start cycle unlocks enabled audio.
+- Both sound channels default to on. Browsers require a click before audio can play;
+  **Start cycle** unlocks enabled audio.
 - **Scanline strength** adjusts the cabinet texture from 0 to 5. Zero turns it
   off; five gives the strongest CRT bands. The setting survives a reload.
 - Reduced-motion preferences suppress scanlines and confetti and simplify death.
