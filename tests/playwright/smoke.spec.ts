@@ -27,18 +27,18 @@ test("music is opt-in and remembers the setting after reload", async ({ page }) 
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto("/");
-  await page.getByRole("button", { name: "Music off", exact: true }).click();
-  await expect(page.getByRole("button", { name: "Music on", exact: true })).toHaveAttribute(
+  await page.getByRole("button", { name: "Turn music on", exact: true }).click();
+  await expect(page.getByRole("button", { name: "Turn music off", exact: true })).toHaveAttribute(
     "aria-pressed",
     "true",
   );
   await expect(page.locator("html")).toHaveAttribute("data-audio-detected", "yes");
   await page.reload();
-  await expect(page.getByRole("button", { name: "Music on", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Turn music off", exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Start cycle" }).click();
   await expect(page.getByLabel("Bases synthesized")).not.toHaveText("0");
-  await page.getByRole("button", { name: "Music on", exact: true }).click();
-  await expect(page.getByRole("button", { name: "Music off", exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Turn music off", exact: true }).click();
+  await expect(page.getByRole("button", { name: "Turn music on", exact: true })).toBeVisible();
   expect(errors).toEqual([]);
 });
 test("cabinet boots with a responsive canvas", async ({ page }) => {
@@ -64,4 +64,29 @@ test("400px touch controls are reachable and steer the player", async ({ page })
   await page.getByRole("button", { name: "Pause or resume" }).click();
   await expect(page.getByRole("status").filter({ hasText: "Paused" })).toBeVisible();
   await page.screenshot({ path: "test-results/mobile_controls.png", fullPage: true });
+});
+
+test("music and FX controls remain independent after reload", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Turn FX on", exact: true }).click();
+  await expect(page.getByRole("button", { name: "Turn FX off", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Turn music on", exact: true })).toBeVisible();
+  await page.reload();
+  await expect(page.getByRole("button", { name: "Turn FX off", exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Turn music on", exact: true }).click();
+  await page.getByRole("button", { name: "Turn FX off", exact: true }).click();
+  await expect(page.getByRole("button", { name: "Turn music off", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Turn FX on", exact: true })).toBeVisible();
+});
+
+test("dashboard focus does not disable keyboard movement", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Start cycle" }).click();
+  const setting = page.getByRole("button", { name: /Turn scanlines/ });
+  await setting.click();
+  await expect(setting).toBeFocused();
+  await page.keyboard.press("ArrowLeft");
+  await expect(page.getByLabel("Bases synthesized")).not.toHaveText("0");
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("button", { name: "Resume game" })).toBeVisible();
 });

@@ -4,6 +4,7 @@ import { paintMaze } from "./maze_painter";
 import { loadSprites } from "./sprite_atlas";
 import { createStrandLayer } from "./strand_layer";
 import { drawDeath } from "./animation";
+import { drawCelebration } from "./celebration";
 import type { Game } from "../game/game_state";
 export function createRenderer(
   canvas: HTMLCanvasElement,
@@ -40,7 +41,13 @@ export function createRenderer(
     }
     context.setTransform(canvas.width / layer.width, 0, 0, canvas.height / layer.height, 0, 0);
     context.clearRect(0, 0, layer.width, layer.height);
+    context.save();
+    if (game.phase === "cycle_complete") {
+      const hue = reducedMotion.matches ? 45 : Math.floor((2 - game.transitionTimer) * 3) * 65;
+      context.filter = `hue-rotate(${hue}deg) brightness(1.3)`;
+    }
     context.drawImage(layer, 0, 0);
+    context.restore();
     strands.paint(context, maze, game.coverage);
     if (game.phase === "playing" && game.time - game.lastProgressTime > 15) {
       context.save();
@@ -125,6 +132,14 @@ export function createRenderer(
       if (bonusSprite?.complete && bonusSprite.naturalWidth)
         context.drawImage(bonusSprite, reagent.x * 24 - 14, reagent.y * 24 - 14, 28, 28);
     }
+    if (game.phase === "cycle_complete")
+      drawCelebration(
+        context,
+        layer.width,
+        layer.height,
+        game.transitionTimer,
+        reducedMotion.matches,
+      );
   }
   return { draw, dispose: () => observer.disconnect() };
 }

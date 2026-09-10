@@ -2,6 +2,26 @@
 
 ### Additions and New Features
 
+- Celebrate cycle clearance with changing wall colors, five confetti bursts, and
+  a victory banner. Reduced motion keeps a steady wall glow and banner.
+
+- Add a persisted scanline toggle with a noninteractive cabinet overlay, suppressed
+  when the browser requests reduced motion.
+
+- Expand the soundtrack to eight sections with four lead themes and a sparse
+  breakdown. Add spinning molecular debris and a larger unfolding death coil;
+  reduced motion uses a static fading coil.
+
+- Add alternating musical phrases, chord pads, swing, and layered arpeggios at
+  the quieter volume. Add independent persisted FX control and synthesized cues
+  for primers, protection, rewards, death, and cycle completion.
+
+- Make the main control contextual: start a cycle, pause, resume, or start a new
+  run after game over.
+
+- Add state-specific cycle guidance and a three-stage thermal progress gauge
+  to the side dashboard, including start, ready, pause, death, and game-over feedback.
+
 - Use a wide desktop cabinet with a square maze and side dashboard; stack the
   dashboard below the maze on narrow screens.
 
@@ -41,6 +61,31 @@
   returning enemy state, and delayed Exo degradation of covered edges.
 
 ### Fixes and Maintenance
+
+- Keep arrow/WASD controls active when dashboard buttons have focus, avoiding
+  apparent movement lockups after changing settings. Preserve editable-field
+  input and modified browser shortcuts.
+
+- Extract fixed-timestep scheduling and cancellation from App into the game loop
+  module; publish rendering and dashboard state once per animation frame.
+
+- Detect strand replacement by render seed even when degradation and re-extension
+  occur between frames. Vary helix phase per edge for a less uniform DNA trail.
+
+- Extract the side dashboard's score and progress displays into the planned HUD
+  component, consuming the batched simulation signals.
+
+- Lower music master gain from 0.55 to 0.25 and label the sound button with its
+  action: Turn music on / Turn music off.
+
+- Move simulation-to-dashboard updates into a single batched Solid signal bridge.
+  Keep simulation state independent of UI reactivity.
+
+- Preserve enemy mode-change reversals at tile centers instead of overwriting
+  them with normal targeting. Check center and mid-edge transitions.
+
+- Route exiting reagents only through legal corridors and stop movement at the
+  exit immediately. Verify return from every corridor in all four mazes.
 
 - Resolve cycle completion immediately after player movement, before same-frame
   enemy collisions or degradation can cancel a reached goal.

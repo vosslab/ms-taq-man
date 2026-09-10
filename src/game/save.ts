@@ -1,7 +1,13 @@
-export type Save = { version: 2; highScore: number; muted: boolean; scanlines: boolean };
+export type Save = {
+  version: 2;
+  highScore: number;
+  muted: boolean;
+  fxMuted: boolean;
+  scanlines: boolean;
+};
 export const saveKey = "ms_taq_man";
 export function defaultSave(): Save {
-  return { version: 2, highScore: 0, muted: true, scanlines: true };
+  return { version: 2, highScore: 0, muted: true, fxMuted: true, scanlines: true };
 }
 export function decodeSave(raw: string | null): Save {
   if (!raw || raw.length > 4096) return defaultSave();
@@ -25,6 +31,7 @@ export function decodeSave(raw: string | null): Save {
     version: 2,
     highScore: value.highScore,
     muted: "muted" in value && typeof value.muted === "boolean" ? value.muted : true,
+    fxMuted: "fxMuted" in value && typeof value.fxMuted === "boolean" ? value.fxMuted : true,
     scanlines:
       "scanlines" in value && typeof value.scanlines === "boolean" ? value.scanlines : true,
   };

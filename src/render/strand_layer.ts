@@ -12,19 +12,20 @@ export function createStrandLayer(): {
   const ink = candidate;
   let previousMaze: Maze | undefined;
   let revision = -1;
-  const drawn = new Set<EdgeId>();
+  const drawn = new Map<EdgeId, number>();
   function stamp(maze: Maze, coverage: Coverage, id: EdgeId): void {
     const edge = maze.edges.get(id);
     if (!edge || !ink) return;
     const jitter = (((coverage.seeds.get(id) ?? 0) % 7) - 3) * 0.3;
+    const phase = (((coverage.seeds.get(id) ?? 0) % 101) / 101) * Math.PI * 2;
     const ax = (edge.a.x + 0.5) * 24;
     const ay = (edge.a.y + 0.5) * 24 + jitter;
     const bx = (edge.b.x + 0.5) * 24;
     const by = (edge.b.y + 0.5) * 24 + jitter;
     if (edge.tunnel) {
-      drawHelix(ink, ax, ay, edge.a.x === 0 ? 0 : layer.width, ay);
-      drawHelix(ink, bx, by, edge.b.x === 0 ? 0 : layer.width, by);
-    } else drawHelix(ink, ax, ay, bx, by);
+      drawHelix(ink, ax, ay, edge.a.x === 0 ? 0 : layer.width, ay, phase);
+      drawHelix(ink, bx, by, edge.b.x === 0 ? 0 : layer.width, by, phase);
+    } else drawHelix(ink, ax, ay, bx, by, phase);
   }
   function paint(context: CanvasRenderingContext2D, maze: Maze, coverage: Coverage): void {
     if (maze !== previousMaze) {
@@ -35,7 +36,9 @@ export function createStrandLayer(): {
       revision = -1;
     }
     if (coverage.revision !== revision) {
-      const removed = [...drawn].filter((id) => !coverage.covered.has(id));
+      const removed = [...drawn.keys()].filter(
+        (id) => !coverage.covered.has(id) || drawn.get(id) !== coverage.seeds.get(id),
+      );
       for (const id of removed) {
         const edge = maze.edges.get(id);
         if (!edge) continue;
@@ -55,7 +58,7 @@ export function createStrandLayer(): {
       for (const id of coverage.covered) {
         if (!drawn.has(id)) {
           stamp(maze, coverage, id);
-          drawn.add(id);
+          drawn.set(id, coverage.seeds.get(id) ?? 0);
         }
       }
       revision = coverage.revision;

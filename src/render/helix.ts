@@ -4,6 +4,7 @@ export function drawHelix(
   ay: number,
   bx: number,
   by: number,
+  phase = 0,
 ): void {
   const length = Math.hypot(bx - ax, by - ay);
   context.save();
@@ -11,7 +12,7 @@ export function drawHelix(
   context.rotate(Math.atan2(by - ay, bx - ax));
   context.lineWidth = 1.3;
   for (let x = 0; x <= length; x += 4) {
-    const offset = 3.5 * Math.sin((x / 24) * Math.PI * 2);
+    const offset = 3.5 * Math.sin((x / 24) * Math.PI * 2 + phase);
     context.strokeStyle = "#bddbb7";
     context.beginPath();
     context.moveTo(x, offset);
@@ -23,7 +24,7 @@ export function drawHelix(
     context.lineWidth = 1.8;
     context.beginPath();
     for (let x = 0; x <= length; x++) {
-      const y = side * 3.5 * Math.sin((x / 24) * Math.PI * 2);
+      const y = side * 3.5 * Math.sin((x / 24) * Math.PI * 2 + phase);
       if (x === 0) context.moveTo(x, y);
       else context.lineTo(x, y);
     }

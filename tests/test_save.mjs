@@ -6,6 +6,7 @@ test("v1 high scores migrate with quiet defaults", () => {
     version: 2,
     highScore: 4200,
     muted: true,
+    fxMuted: true,
     scanlines: true,
   });
 });

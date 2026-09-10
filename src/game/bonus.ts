@@ -46,13 +46,13 @@ export function advanceBonus(bonus: Bonus, maze: Maze, seconds: number): void {
   const exit = maze.corridors.find((position) => position.x === maze.width - 1);
   if (!exit) throw new Error("Reagent exit requires a tunnel");
   const exitTile = exit;
-  function steer(): void {
+  function steer(): void | false {
     if (bonus.exiting) {
       if (tileKey(bonus.actor.position) === tileKey(exitTile)) {
         bonus.finished = true;
-        return;
+        return false;
       }
-      bonus.actor.queued = routeDirection(maze, bonus.actor.position, exitTile) ?? "right";
+      bonus.actor.queued = routeDirection(maze, bonus.actor.position, exitTile, false) ?? "right";
       return;
     }
     const candidates = directions.filter((direction) =>
@@ -60,6 +60,6 @@ export function advanceBonus(bonus: Bonus, maze: Maze, seconds: number): void {
     );
     bonus.actor.queued = candidates[bonus.turns++ % candidates.length] ?? "right";
   }
-  if (!bonus.actor.destination && bonus.age > seconds) steer();
+  if (!bonus.actor.destination && bonus.age > seconds && steer() === false) return;
   moveActor(bonus.actor, maze, seconds * 3, steer);
 }

@@ -47,3 +47,10 @@ origin belongs there too. Rules: [REPO_STYLE.md](REPO_STYLE.md).
   community SVG. Never put the full per-symbol export under `docs/`.
 - Let Markdown link checks include newly created, nonignored untracked files for their first 24
   hours. Keep ignored files unavailable.
+
+- Lower the music volume; label the music control with the action it performs,
+  because Music on / Music off was ambiguous.
+
+- Make the music more interesting and provide separate music and sound-effect controls.
+- Vary the music more and make the death animation even more over the top.
+- Make level completion more exciting with flashing wall colors and lots of confetti.

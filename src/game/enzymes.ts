@@ -102,7 +102,8 @@ export function advanceEnzymes(
   for (const [index, enzyme] of enzymes.entries()) {
     if (time < enzyme.release) continue;
     const mode = enzyme.mode === "eaten" ? "eaten" : frightened ? "frightened" : wave;
-    if (mode !== enzyme.mode) queueDirection(enzyme.actor, opposite[enzyme.actor.direction]);
+    const reversing = mode !== enzyme.mode;
+    if (reversing) queueDirection(enzyme.actor, opposite[enzyme.actor.direction]);
     enzyme.mode = mode;
     function steer(): void {
       const position = enzyme.actor.position;
@@ -131,7 +132,7 @@ export function advanceEnzymes(
           ? frightenedDirection(enzyme, maze)
           : chooseDirection(enzyme.actor, maze, target, false);
     }
-    if (!enzyme.actor.destination) steer();
+    if (!enzyme.actor.destination && !reversing) steer();
     moveActor(
       enzyme.actor,
       maze,

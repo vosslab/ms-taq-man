@@ -1,20 +1,42 @@
 import { createRenderer } from "../render/canvas_renderer";
 import { createSignal, onCleanup, onMount } from "solid-js";
 import type { JSX } from "solid-js";
-import { createGame, recordEvent, startGame, tick } from "../game/game_state";
-import { copyNumber } from "../game/score";
+import { createGame, recordEvent, startGame } from "../game/game_state";
+import { startGameLoop } from "./game_loop";
 import type { Direction } from "../game/coords";
 import { defaultSave, readSave, writeSave } from "../game/save";
 import { TouchControls } from "./touch_controls";
 import { attachSwipe } from "./input";
-import { coveragePercent } from "../game/coverage";
+import { createSoundEffects } from "./sound_effects";
 import { createMusic } from "./music";
+import { Overlays } from "./overlays";
+import { Hud } from "./hud";
+import { createGameSignals } from "./game_signals";
 
 export function App(): JSX.Element {
   let canvas!: HTMLCanvasElement;
   const game = createGame();
+  const hud = createGameSignals(game);
   const music = createMusic();
+  const effects = createSoundEffects();
+  const [fxMuted, setFxMuted] = createSignal(true);
+  let rememberFx: (value: boolean) => void = () => {};
+  async function toggleFx(): Promise<void> {
+    if (fxMuted()) {
+      try {
+        await effects.unlock();
+      } catch {
+        setAudioMessage("Sound effects unavailable in this browser session.");
+        return;
+      }
+    }
+    setFxMuted(!fxMuted());
+    rememberFx(fxMuted());
+    setAudioMessage("");
+  }
   const [muted, setMuted] = createSignal(true);
+  const [scanlines, setScanlines] = createSignal(false);
+  let rememberScanlines: (value: boolean) => void = () => {};
   const [audioMessage, setAudioMessage] = createSignal("");
   let rememberSound: (value: boolean) => void = () => {};
   async function toggleMusic(): Promise<void> {
@@ -31,6 +53,13 @@ export function App(): JSX.Element {
     setAudioMessage("");
   }
   async function unlockMusic(): Promise<void> {
+    if (!fxMuted()) {
+      try {
+        await effects.unlock();
+      } catch {
+        setFxMuted(true);
+      }
+    }
     if (muted()) return;
     try {
       await music.unlock();
@@ -42,14 +71,7 @@ export function App(): JSX.Element {
   function move(direction: Direction): void {
     recordEvent(game, { type: "direction", direction });
   }
-  const [bases, setBases] = createSignal(0);
-  const [status, setStatus] = createSignal("Ready - three lives");
   const [highScore, setHighScore] = createSignal(0);
-  const [score, setScore] = createSignal(0);
-  const [coverage, setCoverage] = createSignal(0);
-  const [primersLeft, setPrimersLeft] = createSignal(game.primers.size);
-  const [extending, setExtending] = createSignal(false);
-  const [hotStart, setHotStart] = createSignal(0);
   onMount(() => {
     const detachSwipe = attachSwipe(canvas, move);
     let save = defaultSave();
@@ -61,6 +83,16 @@ export function App(): JSX.Element {
     }
     if (storage) save = readSave(storage);
     setMuted(save.muted);
+    setScanlines(save.scanlines);
+    rememberScanlines = (value: boolean): void => {
+      save.scanlines = value;
+      if (storage) writeSave(storage, save);
+    };
+    setFxMuted(save.fxMuted);
+    rememberFx = (value: boolean): void => {
+      save.fxMuted = value;
+      if (storage) writeSave(storage, save);
+    };
     rememberSound = (value: boolean): void => {
       save.muted = value;
       if (storage) writeSave(storage, save);
@@ -91,33 +123,27 @@ export function App(): JSX.Element {
       d: "right",
     };
     function input(event: KeyboardEvent): void {
-      const direction = keys[event.key];
+      if (event.altKey || event.ctrlKey || event.metaKey) return;
+      const target = event.target;
+      if (
+        target instanceof HTMLElement &&
+        (target.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName))
+      )
+        return;
+      const direction = keys[event.key] ?? keys[event.key.toLowerCase()];
       if (direction) {
         event.preventDefault();
         recordEvent(game, { type: "direction", direction });
       }
       if (event.key === "Escape") game.paused = !game.paused;
     }
-    canvas.addEventListener("keydown", input);
-    let previous = performance.now();
-    let accumulator = 0;
-    let frame = 0;
-    function animate(now: number): void {
+    window.addEventListener("keydown", input);
+    const stopLoop = startGameLoop(game, () => {
       music.update(!muted() && !game.paused && !document.hidden && game.phase !== "dying");
-      accumulator += Math.min(0.1, (now - previous) / 1000);
-      previous = now;
-      while (accumulator >= 1 / 60) {
-        tick(game, 1 / 60);
-        accumulator -= 1 / 60;
-      }
+      effects.update(game, !fxMuted() && !document.hidden);
       renderer.draw();
-      setBases(game.completedBases + game.coverage.bases);
-      setCoverage(coveragePercent(game.coverage, game.maze.edges.size));
-      setPrimersLeft(game.primers.size);
-      setExtending(game.player.primed);
-      setHotStart(Math.ceil(game.frightened));
+      hud.push(game);
       const total = game.completedBases + game.coverage.bases + game.bonusScore;
-      setScore(total);
       if (total > save.highScore) {
         save.highScore = total;
         setHighScore(total);
@@ -129,33 +155,17 @@ export function App(): JSX.Element {
       ) {
         persist();
       }
-      const thermal =
-        game.transitionTimer > 2
-          ? "95C DENATURE"
-          : game.transitionTimer > 1
-            ? "55C ANNEAL"
-            : "72C EXTEND";
-      setStatus(
-        game.paused
-          ? "Paused - Escape to resume"
-          : game.phase === "intermission"
-            ? thermal
-            : game.phase === "dying"
-              ? "ENZYME DENATURED - refolding for another run"
-              : `Cycle ${game.cycle} - ${game.phase} - ${game.lives} lives - ${copyNumber(game.cycle - 1)} copies`,
-      );
-      frame = requestAnimationFrame(animate);
-    }
-    frame = requestAnimationFrame(animate);
+    });
     onCleanup(() => {
       music.dispose();
+      effects.dispose();
       persist();
       window.removeEventListener("pagehide", persist);
       document.removeEventListener("visibilitychange", hidden);
       detachSwipe();
       renderer.dispose();
-      cancelAnimationFrame(frame);
-      canvas.removeEventListener("keydown", input);
+      stopLoop();
+      window.removeEventListener("keydown", input);
     });
   });
   return (
@@ -165,22 +175,31 @@ export function App(): JSX.Element {
         <h1>Ms Taq Man</h1>
       </header>
       <div class="game-stage">
-        <canvas
-          ref={(element) => {
-            canvas = element;
-          }}
-          aria-label="DNA template maze"
-          tabindex="0"
-        />
+        <div class="maze-screen" classList={{ scanlines: scanlines() }}>
+          <canvas
+            ref={(element) => {
+              canvas = element;
+            }}
+            aria-label="DNA template maze"
+            tabindex="0"
+          />
+        </div>
         <aside class="game-sidebar" aria-label="Game dashboard">
           <button
             onClick={() => {
-              startGame(game);
+              if (game.phase === "attract" || game.phase === "game_over") startGame(game);
+              else game.paused = !game.paused;
               void unlockMusic();
               canvas.focus();
             }}
           >
-            Start cycle
+            {hud.phase() === "attract"
+              ? "Start cycle"
+              : hud.phase() === "game_over"
+                ? "Start new run"
+                : hud.paused()
+                  ? "Resume game"
+                  : "Pause game"}
           </button>
           <button
             aria-pressed={!muted()}
@@ -188,28 +207,26 @@ export function App(): JSX.Element {
               void toggleMusic();
             }}
           >
-            Music {muted() ? "off" : "on"}
+            Turn music {muted() ? "on" : "off"}
+          </button>
+          <button
+            onClick={() => {
+              void toggleFx();
+            }}
+          >
+            Turn FX {fxMuted() ? "on" : "off"}
           </button>
           <span aria-live="polite">{audioMessage()}</span>
-          <p>
-            Bases <output aria-label="Bases synthesized">{bases()}</output>
-          </p>
-          <p role="status">{status()}</p>
-          <p>
-            Score {score()} · Best <output aria-label="High score">{highScore()}</output>
-          </p>
-          <label class="coverage-meter">
-            Template <output aria-label="Template coverage">{coverage().toFixed(1)}%</output> / 50%
-            <progress max="50" value={Math.min(50, coverage())} aria-label="Template synthesized" />
-          </label>
-          <p>
-            <output aria-label="Primers remaining">{primersLeft()}</output> primers left ·{" "}
-            {extending() ? "Extending DNA" : "Find an RNA primer to extend"}
-          </p>
-          <p>Clear the cycle: synthesize 50% OR collect every primer.</p>
-          <p aria-label="Hot-start protection">
-            Hot start: {hotStart() > 0 ? `${hotStart()} seconds` : "inactive"}
-          </p>
+          <button
+            onClick={() => {
+              setScanlines(!scanlines());
+              rememberScanlines(scanlines());
+            }}
+          >
+            Turn scanlines {scanlines() ? "off" : "on"}
+          </button>
+          <Overlays phase={hud.phase()} paused={hud.paused()} timer={hud.transitionTimer()} />
+          <Hud signals={hud} highScore={highScore()} />
           <TouchControls
             move={move}
             pause={() => {

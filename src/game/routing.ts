@@ -4,7 +4,12 @@ import { neighbor } from "./maze";
 import type { Maze } from "./maze";
 
 // House transit uses shortest paths; chase personalities retain arcade targeting.
-export function routeDirection(maze: Maze, start: Tile, target: Tile): Direction | undefined {
+export function routeDirection(
+  maze: Maze,
+  start: Tile,
+  target: Tile,
+  houseAccess = true,
+): Direction | undefined {
   const queue: { position: Tile; first: Direction | undefined }[] = [
     { position: start, first: undefined },
   ];
@@ -14,7 +19,7 @@ export function routeDirection(maze: Maze, start: Tile, target: Tile): Direction
     if (!current) continue;
     if (tileKey(current.position) === tileKey(target)) return current.first;
     for (const direction of directions) {
-      const next = neighbor(maze, current.position, direction, true);
+      const next = neighbor(maze, current.position, direction, houseAccess);
       if (!next || visited.has(tileKey(next))) continue;
       visited.add(tileKey(next));
       queue.push({ position: next, first: current.first ?? direction });

@@ -5,6 +5,34 @@ import { createActor } from "../src/game/actor.ts";
 import { mazeForCycle } from "../src/game/maze_layouts.ts";
 import { levelForCycle } from "../src/game/level_table.ts";
 import { tileKey } from "../src/game/coords.ts";
+import { tile } from "../src/game/coords.ts";
+import { parseMaze } from "../src/game/maze.ts";
+
+test("mode changes reverse enemies at centers and between centers", () => {
+  const maze = parseMaze(["#######", "#.....#", "#..P..#", "#.....#", "#######"]);
+  for (const progress of [0, 0.25]) {
+    const enemies = createEnzymes(maze).slice(0, 1);
+    const enemy = enemies[0];
+    enemy.actor = createActor(maze.start);
+    enemy.actor.direction = "right";
+    enemy.actor.queued = "right";
+    enemy.actor.progress = progress;
+    if (progress) enemy.actor.destination = tile(4, 2);
+    advanceEnzymes(
+      enemies,
+      maze,
+      createActor(tile(5, 2)),
+      1,
+      1 / 60,
+      false,
+      () => {},
+      levelForCycle(1),
+      "chase",
+    );
+    assert.equal(enemy.actor.direction, "left");
+    assert.equal(enemy.mode, "chase");
+  }
+});
 
 test("eaten enemies return, stop at the house, and leave after recovery", () => {
   for (const cycle of [1, 2, 3, 4]) {

@@ -23,6 +23,13 @@ body { margin: 0; }
 .game-sidebar output { color: var(--color-primer); font-variant-numeric: tabular-nums; }
 .game-sidebar .coverage-meter { flex-wrap: wrap; }
 .game-sidebar .coverage-meter progress { flex-basis: 100%; }
+.phase-panel:empty { display: none; }
+.phase-panel { padding: 12px; margin: 8px 0 16px; border-left: 3px solid var(--color-strand); background: #091827; border-radius: 8px; }
+.phase-panel h2 { margin: 0; font-size: 1.1rem; color: var(--color-strand); }
+.phase-panel p { font-size: .85rem; }
+.phase-panel progress { width: 100%; accent-color: var(--color-strand); }
+.thermal-stages { padding-left: 24px; line-height: 1.8; }
+.thermal-stages .active { color: var(--color-primer); font-weight: bold; }
 header, footer { text-align: center; }
 h1 { font-size: clamp(2rem, 4vw, 3rem); margin: 0 0 14px; color: var(--color-primer); }
 .eyebrow { letter-spacing: .25em; font-size: .75rem; }
@@ -32,6 +39,11 @@ button { min-height: 56px; min-width: 56px; font: inherit; }
 .coverage-meter { display: flex; align-items: center; gap: 8px; margin: 10px 0; font-size: .85rem; }
 .coverage-meter progress { flex: 1; min-width: 0; height: 10px; accent-color: var(--color-strand); }
 canvas { touch-action: none; }
+.maze-screen { position: relative; min-width: 0; }
+.maze-screen.scanlines::after { content: ""; position: absolute; inset: 2px; pointer-events: none; border-radius: 16px; background: repeating-linear-gradient(0deg, transparent 0 3px, rgb(0 0 0 / .12) 3px 4px); }
+@media (prefers-reduced-motion: reduce) {
+  .maze-screen.scanlines::after { display: none; }
+}
 button { color: var(--color-text); background: #173347; border: 1px solid #50cff7; border-radius: 12px; cursor: pointer; }
 button:focus-visible, canvas:focus-visible { outline: 3px solid var(--color-primer); outline-offset: 3px; }
 .touch-controls { display: grid; grid-template-columns: repeat(3, 64px); grid-template-rows: repeat(3, 56px); gap: 6px; justify-content: center; margin: 16px auto; }
