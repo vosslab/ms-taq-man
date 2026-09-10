@@ -11,13 +11,19 @@ _temp*.?*
 /OTHER_REPOS/
 /LOCAL_ONLY/
 
-# === PYTHON === [PROPAGATED - LOCAL EDITS OVERWRITTEN]
-build/
+# === TYPESCRIPT === [PROPAGATED - LOCAL EDITS OVERWRITTEN]
 dist/
-sdist/
-*.egg
-*.egg-info/
-site/
+dist_*/
+_site/
+*.tsbuildinfo
+.eslintcache
+.prettiercache
+test-results/
+playwright-report/
+blob-report/
+coverage/
+meta.json
+stats.html
 
 # -------------------- LOCAL REPOSITORY RULES --------------------
 # ADD YOUR CUSTOM IGNORES BELOW
