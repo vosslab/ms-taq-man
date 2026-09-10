@@ -1,67 +1,65 @@
-# Arcade acceptance ledger
+# Arcade acceptance matrix
 
-Status as of 2026-09-09. Authority:
-[splendid-gathering-tulip.md](../splendid-gathering-tulip.md) and the
-[arcade_completion.md](../active/arcade_completion.md) companion.
-This is an open ledger, not a completion certificate.
+Status as of 2026-09-09. This matrix records current evidence for the original
+[plan](../splendid-gathering-tulip.md) and its
+[completion companion](../active/arcade_completion.md). A verified item has a
+repeatable check or a directly inspected artifact. A partial item names its
+remaining boundary.
 
-## Mechanics and architecture
+## Game rules, movement, and progression
 
-| Requirement | Evidence | Status and remaining acceptance |
+| Requirement | Status | Evidence and limitation |
 | --- | --- | --- |
-| Four connected rotating mazes, edge graph, tunnels | Maze tests, four layout sources | All four clear through simulation traversal at Chill and Easy; browser playthrough remains |
-| Primer pickup, full-edge extension, no duplicate score | Player and coverage tests | Verified in focused tests |
-| Buffered turns, reversals, wall recovery | Player tests; keyboard-focus browser regression | Verified in focused tests; late-turn feel remains unmeasured |
-| 50% template OR all primers clears cycle | Game-state tests and HUD wording | Both goals exercised through movement; continuous Easy run reaches cycle 5 |
-| Four targeting personalities, frightened choices, waves | Targeting and wave tests | Tunnel slowdown implemented and tested; mode-transition parity needs review |
-| House return and timed release | Lifecycle tests across all four mazes | Verified focused lifecycle |
-| Nuclease chew-back | Game-state delay test, strand seed tracking | 0.6s fade implemented; Chromium fade and repair comparison passed |
-| Extra life, chain rewards, copy count, saves | Score, game-state, save tests | Direction, extension, buddy extension, bonuses, and captures use recordEvent; extra-life threshold centralized |
-| Moving reagents and exits | Every-corridor exit tests across four mazes | Routing and whole-board tours verified; seven sprites and collected-reagent tray integrated |
-| Death and thermal transitions | Simulation tests, procedural animation, overlays | Implemented; full-board death screenshot inspected; motion acceptance remains |
-| Fixed timestep, Solid snapshot bridge, HUD, overlays | game_loop, game_signals, hud, overlays modules | Recursively read-only live view; frozen snapshot remains a distinct unresolved requirement |
-| Cached maze and persistent strands | maze_painter, strand_layer | Dirty-region repaired alpha within 4/255 of fresh Chromium render; full-nest performance remains |
-| DPR ImageBitmap atlas | SVG decode, DPR rasterization, bitmap replacement and disposal | Chromium verified all 17 sprites, doubled dimensions at 2x, and closed resources |
+| Four connected, rotating template mazes | **Verified** | 59 Node tests include four maze checks; the level validator passes all four layouts. The browser driver advances through cycles 1-4 and reaches Cycle 5. |
+| No broad open rooms or hidden-wall-looking traps | **Verified** | `tests/test_maze.mjs` forbids every open two-by-two walkable area; the normal validator also checks connectivity, tunnels, reachable pickups, and house paths. Visual review finds continuous walls and narrow corridors. |
+| Buffered turns, reversals, tunnel travel, and collision handling | **Verified** | Simulation and browser checks cover these paths, including tunnel collision and real arrow-key steering. The long driver reports no diagnostics. |
+| RNA primer pickup starts extension | **Verified** | Primer-count, pickup, death/re-prime, and coverage tests pass; the browser traversal deliberately re-primes after death. |
+| Cycle clears at coverage target **or** all primers | **Verified** | Difficulty tests cover 50/60/70/80/90% targets; default Easy is 60%. Browser traversal clears all four cycles through normal play. |
+| Enzyme personality, house release/return, frightened state | **Verified** | Lifecycle coverage drives all four enzymes through release, house exit, frightened expiry, and return behavior. Static images cannot establish animation cadence. |
+| Chew-back fade and fresh re-extension | **Verified** | Browser traversal observes 35 same-cycle chew removals and five fresh-seed re-extensions. Strand browser tests check the 0.6-second fade, removal, and new seed. |
+| Reagents, scoring, extra life, buddy/clamp behavior | **Verified** | Node tests cover timing and effects; the browser traversal collects three reagents. The clamp's visible, colored construction and shield behavior are source and browser-tested. |
 
-Simulation traversal evidence and command are recorded in
-[traversal_baseline.md](traversal_baseline.md). The continuous run includes
-celebrations, thermal transitions, retained bases, and an earned extra life.
+## Rendering, interaction, and presentation
 
-## Art and interaction
-
-| Artifact or requirement | Current evidence | Remaining work |
+| Requirement | Status | Evidence and limitation |
 | --- | --- | --- |
-| taq_man.svg | Polymerase silhouette and bow | Open/closed thumb sprites animate movement; reduced motion stays open |
-| exo.svg, dimer.svg, chelate.svg, rnase.svg | Distinct silhouettes | Directional eye groups and personality animations implemented; atlas and motion frames inspected |
-| primer.svg | RNA-like strand and staggered pulse | In-game pulse review remains |
-| taq_denature.svg | Procedural death equivalent in animation.ts | Evaluate equivalent and document acceptance |
-| frightened.svg, eaten_eyes.svg, hot_start.svg | Authored, integrated, inspected at 16px and 256px | In-game state-transition acceptance remains |
-| strand_ribbon.svg | Procedural double helix | Fade implemented; evaluate procedural equivalent, organic junctions, and full-nest evidence |
-| Seven reagent SVGs | All seven authored, integrated by bonus name, inspected at 16px and 256px | Actual collection visual acceptance remains |
-| logo_ms_taq_man.svg, helix_backdrop.svg | Editable SVG wordmark and attract backdrop integrated | Atlas decoding and rendered inspection passed |
-| Muted-default music, independent FX | Six browser smoke tests include persistence and music waveform | FX event waveform and attended listening remain |
-| Scanlines, reduced motion | Saved 0-5 slider; endpoint reload browser tests; reduced-motion CSS and animations | Browser preference acceptance remains |
-| Light/dark palette and shared canvas tokens | System light/dark cabinet; backbone and strand colors read from CSS | Remaining sprite/effect palette tokens need review |
-| Responsive 16:10 cabinet and touch/keyboard parity | Desktop and 400px screenshots; focus regression | Current desktop cabinet captured and inspected; latest mobile review remains |
-| Victory celebration | Chromium cycle_celebration.png inspected | Actual traversal-triggered celebration and motion review remain |
+| Editable molecular player, primer, enemy, and death art | **Verified** | The source contains 22 editable sprite names, including `taq_denature.svg` and `strand_ribbon.svg`; atlas, browser, and visual review pass. |
+| Organic double helix stays inside usable corridors | **Verified** | DPR 1 and DPR 2 full-nest browser checks pass. [Full nests](../../screenshots/full_nests.png) show varied paired strands and rungs without obscuring corridors. |
+| Renderer readiness, DPR resize, and disposal | **Verified** | Browser tests exercise the current generation after resize, loaded sprites, and disposal rejection. |
+| Cached degradation and repair performance | **Verified** | Full-frame browser evidence reports degradation p95 at or below 1.5 ms and re-extension p95 at or below 2.3 ms. These are browser measurements, not a mobile frame-rate guarantee. |
+| 16:10 desktop cabinet and mobile layout | **Verified** | Browser geometry records desktop stage ratio 1.619 and board/dashboard bottom delta 1.7 px; the 400 px mobile view stacks readable controls and accepts a swipe. |
+| Arrow keys, WASD, swipe, and dashboard focus | **Verified** | Arrow keys are the primary documented input; browser smoke tests cover keyboard focus and 400 px swipe input. |
+| Dramatic death, celebration, scanlines, and independent sound controls | **Verified / sensory limit** | Static captures and source verify the visual states and controls. Earlier attended play feedback covered sound, scanlines, and pacing; static images cannot prove motion rhythm or audio mix. |
 
-## Release gates
+![Keyboard-driven cycle completion](../../screenshots/browser_cycle.png)
 
-- Latest codebase gate: 47 unit tests, TypeScript, lint, and formatting pass.
-- Latest browser suite: six smoke tests and one art atlas test pass; these do not clear a full cycle.
-- Production build passes and emits dist with cache-versioned assets.
-- Art atlas test decodes authored SVGs and captures 16px/256px renders.
-- Python hygiene: 1,035 checks passed. Local launcher was run successfully for README capture.
-- Attended full-run play acceptance remains unverified.
-- Required README, usage, architecture, file structure, and decisions need final review.
-- Full-run evidence must include each maze, a death/repriming run, visible chew-back,
-  re-extension, bonus collection, keyboard-only play, and a completed nest.
-- Record completion time, deaths, coverage history, and frame timing before tuning claims.
-- Independent mechanics and visual review remains open.
+## Browser acceptance run
 
-## Next implementation sequence
+The long driver at `tests/playwright/e2e/browser_traversal.mjs` uses real
+Playwright arrow-key events. Its observer is a detached copied projection with a
+top-level freeze for safe route decisions; it is not recursively immutable and
+does not mutate the running game. This is manual acceptance rather than a regular
+CI test because its state-aware route is intentionally long.
 
-1. Complete remaining logo/backdrop artwork and resolve procedural-art equivalents.
-2. Verify full-nest rendering, organic junctions, and frame timing.
-3. Complete light/dark palette and shared canvas tokens.
-4. Run browser traversal and remaining visual gates, then finalize documentation and review.
+| Cycle | Clear time | Deaths before clear | Final-edge interval |
+| --- | ---: | ---: | ---: |
+| 1 | 49.8 s | 1 | 5.2 s |
+| 2 | 39.0 s | 0 | 1.8 s |
+| 3 | 37.1 s | 0 | 2.9 s |
+| 4 | 46.5 s | 0 | 8.8 s |
+
+The same run reaches Cycle 5, collects three reagents, records 35 chew removals,
+five fresh-seed re-extensions, and a re-prime after death, with no diagnostics.
+It establishes browser finishability under controlled automation; it does not
+measure human skill, subjective pacing, or real-time performance on every device.
+
+## Release checks
+
+- `./check_codebase.sh`: passed with 59 Node tests and four level validations.
+- `./run_playwright_tests.sh`: passed 16 browser tests.
+- `./build_github_pages.sh`: passed and produced the static `dist/` site.
+- `source source_me.sh && python3 -m pytest tests/`: 1,051 passed in the final settled-tree run.
+- `git diff --check`: passed during documentation closeout.
+
+The build is ready for a GitHub Pages deployment workflow, but this repository
+does not claim that an external deployment has been performed.

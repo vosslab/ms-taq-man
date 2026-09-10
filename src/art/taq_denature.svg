@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="taq_denature_title taq_denature_desc">
+  <title id="taq_denature_title">Unraveling Taq polymerase</title>
+  <desc id="taq_denature_desc">A recognizable polymerase palm, fingers, thumb, magnesium bow, and a loose protein coil pulling apart.</desc>
+  <g id="taq_denature_coil" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path id="taq_denature_coil_shadow" d="M29 42C42 57 61 51 52 39S38 37 51 26S58 7 43 10S34 27 45 24" stroke="#49301d" stroke-width="7"/>
+    <path id="taq_denature_coil_core" d="M29 42C42 57 61 51 52 39S38 37 51 26S58 7 43 10S34 27 45 24" stroke="#ffce68" stroke-width="4"/>
+    <path id="taq_denature_coil_glint" d="M37 47C45 53 55 49 53 41" stroke="#fff0b1" stroke-width="1.3"/>
+  </g>
+  <g id="taq_denature_domain_remnants" stroke="#49301d" stroke-linejoin="round">
+    <path id="taq_denature_palm" fill="#edaa34" d="M29 48C19 55 8 48 9 37C10 25 18 20 28 24L35 33Z"/>
+    <path id="taq_denature_fingers" fill="#ffdb72" d="M13 28C7 20 13 11 22 12C30 10 37 15 39 22L31 27L24 22L20 31Z"/>
+    <path id="taq_denature_thumb" fill="#ffc452" d="M22 42C24 35 30 33 35 36L39 43L45 38L48 45C42 52 31 54 22 48Z"/>
+    <path id="taq_denature_cleft" fill="#09111f" d="M26 31L34 28L39 33L34 38Z"/>
+    <path id="taq_denature_bow" fill="#79ead1" d="M18 15L8 8L9 20L20 19L29 10L31 21Z"/>
+    <circle id="taq_denature_magnesium" cx="20" cy="17" r="3.4" fill="#fff5c9"/>
+  </g>
+  <g id="taq_denature_fragments" fill="#ff657d" stroke="#49301d" stroke-width="1">
+    <path d="M5 34l5-3 2 4-5 3z"/><path d="M43 5l4 2-2 4-4-2z"/><path d="M55 20l5-1 1 4-5 1z"/>
+  </g>
+</svg>

@@ -2,6 +2,26 @@
 
 ### Additions and New Features
 
+- Complete the molecular arcade pass: add editable unraveling-polymerase and
+  strand-ribbon artwork; extend the generated atlas to 22 editable sprite names;
+  render organic seeded helixes, shaped animated enzymes, RNA primers, clamp-color
+  DNA, full-board denaturation, wall flashes, confetti, and a responsive 16:10
+  dashboard with arrow/WASD and swipe steering.
+
+- Add browser coverage for strand fading, tunnel-local dirty repair, DPR full
+  nests, full-frame renderer readiness/disposal, desktop geometry, and mobile
+  swipe behavior. Record a state-aware real-arrow browser traversal through all
+  four cycles, a re-prime, reagent pickups, chew-back, and fresh re-extension.
+
+- Refresh the newcomer README, usage, architecture, file structure, design
+  decisions, screenshot evidence, and acceptance reports. Describe the local
+  static build as GitHub Pages-ready without claiming an external deployment.
+
+- Preserve the automated maze-validation request in human guidance. The standard
+  gate now rejects disconnected routes, unreachable pickups, invalid tunnel or
+  house routes, and open two-by-two rooms that could create open-space or
+  hidden-wall traps.
+
 - Remove the fixed-timestamp keyboard replay from the regular browser suite after
   a rerun diverged to 51.1% coverage. Record the limitation: a successful observed
   browser run is not a stable full-run regression; state-observing steering is needed.
@@ -290,6 +310,11 @@
 
 ### Fixes and Maintenance
 
+- Apply the independent six-pass code audit: resolve Playwright paths through
+  the shared Git-root anchor, keep routine galleries under `test-results/`,
+  consolidate sidebar CSS ownership, clarify difficulty and manual traversal
+  documentation, and label the earlier 50-percent guidance as superseded.
+
 - Add a four-maze regression requiring reagent tours to reach upper and lower
   interior corridors instead of repeatedly visiting tunnel-adjacent tiles.
 
@@ -414,6 +439,15 @@
   death delay, and unprimed respawn. Final death animation remains pending.
 
 ### Developer Tests and Notes
+
+- Current closeout evidence: `./check_codebase.sh` passes 59 Node tests and four
+  level validations; `./run_playwright_tests.sh` passes 16 browser tests;
+  `./build_github_pages.sh` succeeds; Python hygiene reports 1,051 passed. The
+  long browser traversal remains documented manual acceptance rather than CI.
+
+- Record the approved renderer boundaries: canvas reads a synchronous recursively
+  read-only live frame view, and the procedural graph-aware helix is the runtime
+  equivalent of the editable, atlas-reviewed `strand_ribbon.svg` specification.
 
 - Verify final-primer completion through real movement following death and an
   unprimed respawn, without synthesizing half the maze or mutating completion state.

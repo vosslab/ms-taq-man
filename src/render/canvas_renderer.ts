@@ -4,14 +4,20 @@ import { actorLocation } from "../game/actor";
 import { tileKey } from "../game/coords";
 import { paintMaze } from "./maze_painter";
 import { loadSprites, reagentSprite } from "./sprite_atlas";
+import type { SpriteAtlasStatus } from "./sprite_atlas";
 import { createStrandLayer } from "./strand_layer";
 import { drawDeath } from "./animation";
 import { drawCelebration } from "./celebration";
 import type { Game } from "../game/game_state";
-export function createRenderer(
-  canvas: HTMLCanvasElement,
-  game: ReadOnly<Game>,
-): { draw: () => void; dispose: () => void } {
+
+export type CanvasRenderer = {
+  draw: () => void;
+  ready: () => Promise<void>;
+  spriteStatus: () => SpriteAtlasStatus;
+  dispose: () => void;
+};
+
+export function createRenderer(canvas: HTMLCanvasElement, game: ReadOnly<Game>): CanvasRenderer {
   const atlas = loadSprites();
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   const style = getComputedStyle(document.documentElement);
@@ -229,7 +235,7 @@ export function createRenderer(
       const travel = reducedMotion.matches ? 0 : Math.min(1, elapsed / 0.8);
       const x = location.x * 24 * (1 - travel) + (layer.width / 2) * travel;
       const y = location.y * 24 * (1 - travel) + (layer.height / 2) * travel;
-      drawDeath(context, x, y, game.deathTimer, reducedMotion.matches);
+      drawDeath(context, x, y, game.deathTimer, reducedMotion.matches, atlas.get("taq_denature"));
     }
     if (game.phase === "cycle_complete")
       drawCelebration(
@@ -242,6 +248,8 @@ export function createRenderer(
   }
   return {
     draw,
+    ready: atlas.ready,
+    spriteStatus: atlas.status,
     dispose: (): void => {
       observer.disconnect();
       atlas.dispose();

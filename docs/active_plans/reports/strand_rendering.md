@@ -1,30 +1,45 @@
-# Full-board strand rendering
+# Strand rendering acceptance
 
-2026-09-09 Chromium inspection covered every template edge in all four mazes,
-then removed and re-added 100 edges per maze using the production strand layer.
-This is synthetic renderer stress evidence, not a gameplay completion claim.
+The production strand layer is graph-aware. It paints two colored backbones and
+base-pair rungs along maze edges with deterministic seed variation, rather than
+stamping a rectangular sprite into corridors. `src/art/strand_ribbon.svg` remains
+the editable, atlas-reviewed visual specification for that production equivalent.
+The durable ownership decision is recorded in
+[DESIGN_DECISIONS.md](../../DESIGN_DECISIONS.md).
 
-![Four fully synthesized mazes](../../screenshots/full_nests.png)
+![Four fully synthesized templates](../../screenshots/full_nests.png)
 
-The corridors and connected walls remain distinguishable at full coverage.
-No obvious residue appeared after repeated repairs. The result reads as a regular
-helix network; the plan's more organic tangled-nest appearance remains unfinished.
+The focused Playwright check writes its disposable gallery to `test-results/`.
+After visual review, deliberately copy the accepted gallery to
+`docs/screenshots/full_nests.png` when refreshing this report.
 
-## Local timing sample
+## Browser evidence
 
-504x504 logical-pixel canvases; 300 cached draws per maze; 100 removal/re-addition
-pairs. Cached-draw timing includes full-canvas getImageData after every draw.
-Repair timing is the pair total divided by two, with readback after each pair.
+`tests/playwright/strand_render.spec.ts` passes in Chromium and verifies:
 
-| Maze | Edges | Cached draw + readback | Mean repair update |
-| --- | --- | --- | --- |
-| 1 | 229 | 0.266 ms | 0.554 ms |
-| 2 | 267 | 0.267 ms | 0.586 ms |
-| 3 | 249 | 0.269 ms | 0.555 ms |
-| 4 | 254 | 0.253 ms | 0.556 ms |
+- Tunnel degradation changes only the two local tunnel-mouth regions; unrelated
+  pixels remain unchanged.
+- An ordinary chewed strand fades for 0.6 seconds, disappears, and re-extension
+  obtains a fresh seed and pixel signature.
+- All four full mazes paint at DPR 1 and DPR 2 without exceptions, preserving
+  both backbone colors and visible rungs.
+- Cached and repair timings are finite, reported for review rather than asserted
+  as machine-specific limits.
 
-These local measurements cover the strand layer only. They do not prove a whole-game
-frame budget, mobile performance, high-DPR performance, or compositor presentation
-latency. Initial layer command submission measured 3.7-4.8 ms without readback.
-The earlier focused repair check compared repaired alpha with a fresh render and
-found differences within 4/255 from raster rounding.
+`tests/playwright/full_frame_render.spec.ts` additionally exercises the complete
+renderer, atlas readiness, resize generation, and disposal. Its full-frame
+degradation p95 is at or below 1.5 ms; re-extension p95 is at or below 2.3 ms.
+These browser results are comfortably below a 16.7 ms frame interval, but they do
+not claim a mobile or compositor-wide performance guarantee.
+
+## Visual review
+
+The maintained full-nest capture shows varied wave cadence, amplitude, bend,
+skew, and junction behavior across edges and cycles. It retains a recognizably
+double-stranded molecular appearance, makes clamp-built violet/pink DNA distinct
+from Taq-built green/blue DNA, and leaves corridor choices legible. This closes
+the former regular-ladder concern without allowing trail geometry to spill into
+walls.
+
+Future visual changes must update the editable ribbon and procedural painter
+together, then rerun the SVG-atlas and strand-render browser checks.

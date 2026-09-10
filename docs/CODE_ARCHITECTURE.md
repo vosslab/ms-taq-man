@@ -15,10 +15,16 @@ uses tile positions plus edge progress; completed traversals notify the player
 extension model. A reversal that returns to its starting tile does not synthesize
 an entire edge.
 
+The production layouts are deliberately narrow, connected corridors. The regular
+level validator checks parsing, connectivity, tunnel links, pickup reachability,
+house-return paths, and forbids open two-by-two walkable rooms so a layout cannot
+create the open-space or hidden-wall traps the game previously risked.
+
 [coverage.ts](../src/game/coverage.ts) stores covered edges, earned bases, and
 render seeds. Degradation removes coverage without subtracting earned points.
-Cycle clearance checks 50% edge coverage OR no remaining primers immediately
-after player movement, before enemy updates can undo that success.
+Cycle clearance checks the difficulty-scaled coverage target (50/60/70/80/90%,
+with Easy at 60%) OR no remaining primers immediately after player movement,
+before enemy updates can undo that success.
 
 [enzymes.ts](../src/game/enzymes.ts) owns targeting, mode transitions, house
 transit, and chew-back emission. Ordinary targeting uses arcade personalities;
@@ -49,16 +55,24 @@ keyboard input call the same direction event path.
 ## Rendering and audio
 
 [canvas_renderer.ts](../src/render/canvas_renderer.ts) composites a cached maze,
-persistent strand layer, and SVG actors. It reads a shallow read-only game view.
-Wall tracing preserves multiple outgoing boundaries at diagonal contacts.
+persistent strand layer, and SVG actors. It consumes a recursively read-only live
+game view synchronously after a fixed simulation batch; it is not an immutable
+snapshot. Wall tracing preserves multiple outgoing boundaries at diagonal contacts.
 Strand seeds detect degradation and re-extension between rendered frames.
+
+[helix.ts](../src/render/helix.ts) paints graph-aligned organic paired backbones
+and base-pair rungs. [strand_ribbon.svg](../src/art/strand_ribbon.svg) is the
+editable, atlas-reviewed visual specification for that runtime equivalent rather
+than a rectangle stamped directly into corridors. The strand layer caches complete
+coverage, fades chew-back locally, and repairs only affected edge regions.
 
 Death composites a grayscale board before drawing the enlarged coil. Cycle
 completion adds wall color changes, confetti, and a banner. Live reward messages
 stay in the dashboard. Reduced-motion preferences simplify these effects.
 
-Editable SVG sources live in `src/art`. The build generates TypeScript markup
-with [build_svg_art.mjs](../tools/build_svg_art.mjs). The current atlas loads
+Editable SVG sources live in `src/art`, including the denaturing polymerase and
+strand-ribbon specifications. The build generates TypeScript markup with
+[build_svg_art.mjs](../tools/build_svg_art.mjs). The current 22-name atlas loads
 DPR-scaled ImageBitmaps, including directional enemy variants. Resizing replaces
 bitmaps; renderer disposal closes them.
 
@@ -76,5 +90,8 @@ audio settings, scanlines, and difficulty. Active runs are not persisted.
 bundles Solid through the esbuild JavaScript API, and emits the standalone dist
 site. Asset hashes in URLs prevent stale script and stylesheet reuse.
 
-Remaining acceptance work is tracked in
+Browser acceptance includes a state-aware manual traversal driver that uses real
+arrow-key events and observes a detached copied projection of the game. It is
+deliberately outside the short regular suite because it is a long acceptance run,
+not a stable CI oracle. Current evidence is recorded in
 [acceptance_matrix.md](active_plans/reports/acceptance_matrix.md).

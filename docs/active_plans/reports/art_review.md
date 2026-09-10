@@ -1,31 +1,59 @@
-# Sprite review
+# Final art and interface review
 
-Reviewed the Chromium atlas from `tests/playwright/art_render.spec.ts` on
-2026-09-09. It renders every current SVG at 16px and 256px. The captured artifact
-is `test-results/sprite_atlas.png`; rerun `./run_playwright_tests.sh` to regenerate it.
+Reviewed 2026-09-09 from the maintained documentation captures, current SVG
+sources, and the regenerated native-detail sprite atlas. This is visual
+acceptance evidence, not a claim that still images can evaluate sound or motion
+timing.
 
-## Current results
+## Captures
 
-- All sixteen SVGs decode and display without clipped silhouettes in the atlas.
-- Exo, Dimer, Chelate, and RNase retain distinct outer shapes at 16px. Their
-  personalities still need directional eye cues; color alone is not the only cue.
-- Taq's palm, fingers, thumb, and bow read clearly at 256px. At 16px the golden
-  open cleft and green bow remain visible. Active-site opening animation is missing.
-- Frightened coil and returning eyes are recognizably different states at both sizes.
-- Hot-start lightning is visible inside its circular border at 16px.
-- Seven reagent silhouettes remain distinguishable: antibody Y, crystal, shield,
-  speed flask, paired vials, droplet, and magnesium flask. The Mg label is readable
-  at large size; the small sprite relies on silhouette and the dashboard description.
-- Primer geometry preserves its wide aspect ratio inside the atlas's square image
-  box. Its actual in-game rendering is 18x9, with a gentle pulse.
+- `gameplay.png`: 1920 x 1200 desktop cabinet.
+- `gameplay_mobile.png`: 400 x 1297 stacked mobile view.
+- `browser_death.png`: full-board polymerase denaturation.
+- `browser_cycle.png`: cycle-complete celebration.
+- `full_nests.png`: four fully synthesized templates.
+- `test-results/sprite_atlas.png`: 22 editable source sprites at native detail.
 
-## Remaining acceptance
+![Four full template nests](../../screenshots/full_nests.png)
 
-- Review all state transitions during actual play, especially crowded junctions.
-- Add active-site animation and directional eye groups.
-- Complete the logo and attract background, then include them in visual review.
-- Validate contrast against a future light palette and maximum scanline strength.
-- Full-nest readability and chew-back fading need separate board captures.
+![Keyboard-driven cycle celebration](../../screenshots/browser_cycle.png)
 
-These findings establish static sprite readability only. They do not establish
-complete artwork or full-game visual acceptance.
+## Findings
+
+- Continuous cyan wall outlines now define connected, single-tile corridors;
+  the previous broad open patches and isolated-wall impression are absent.
+- Primers read as pink-and-amber curved oligonucleotides with colored bases,
+  rather than plain square pellets.
+- Taq reads as a warm multi-lobed polymerase with fingers, palm, thumb, active
+  cleft, and teal cofactor bow. The denaturing asset retains that molecular
+  identity as it becomes a coil with scattered fragments.
+- Exo, Dimer, Chelate, and RNase have clearly different silhouettes, palettes,
+  and directional eye treatment. The atlas additionally confirms frightened and
+  returning forms, both Taq frames, the clamp, activator, and seven reagents.
+- Full nests show two backbone colors plus rungs, with green/blue Taq DNA and
+  intermittent violet/pink clamp DNA. Seeded cadence, amplitude, bend, and
+  junction behavior differ across edges while the strands remain inside corridors.
+- The desktop stage is 16:10 with a square board and aligned side dashboard;
+  the 400 px view stacks a legible dashboard below the board without a direction
+  pad. The dashboard uses repeated spacing and a meaningful amber/green/violet
+  color key.
+- Death visibly converts the whole board to grayscale/dim treatment, enlarges
+  the unraveling polymerase, and adds fragments. Completion has its own board
+  banner and celebration; chain-reaction status remains in the dashboard.
+- Scanlines remain plainly visible at the captured strength without hiding wall,
+  primer, or strand cues.
+
+## Acceptance calls
+
+| Criterion | Result | Boundary |
+| --- | --- | --- |
+| Connected walls and legible corridors | **Pass** | Browser and level validation cover behavior; stills establish the visual result. |
+| RNA primers, polymerase player, shaped enemies | **Pass** | Verified from gameplay captures and 22-sprite native atlas. |
+| Organic, molecular helix and clamp distinction | **Pass** | Full-nest capture and DPR renderer checks support both appearance and containment. |
+| 16:10 dashboard and mobile readability | **Pass** | Desktop geometry is 1.619; mobile is checked at 400 px. |
+| Scanlines, death, and celebration | **Pass with motion limit** | Stills and source establish visual states; motion cadence requires playback. |
+| Music and FX quality | **Attended-feedback supported** | Earlier iterative play feedback covered sound, scanlines, and pacing. A static image cannot verify an audio mix. |
+
+No visual blocker remains. A possible later polish pass could raise the contrast or
+scale of long completed helix runs if the team wants the dense nests to read as
+more tangled from farther away; current corridor readability is already intact.

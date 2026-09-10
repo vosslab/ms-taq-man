@@ -4,6 +4,7 @@ export function drawDeath(
   y: number,
   remaining: number,
   reducedMotion: boolean,
+  denaturedTaq?: CanvasImageSource,
 ): void {
   const elapsed = 2.8 - remaining;
   const unfold = Math.min(1, Math.max(0, (elapsed - 0.25) / 1.6));
@@ -11,6 +12,7 @@ export function drawDeath(
   context.translate(x, y);
   context.globalAlpha = Math.min(1, remaining / 0.6);
   if (reducedMotion) {
+    if (denaturedTaq) context.drawImage(denaturedTaq, -14, -14, 28, 28);
     context.strokeStyle = "#ffce68";
     context.lineWidth = 3;
     context.beginPath();
@@ -25,6 +27,16 @@ export function drawDeath(
     return;
   }
   const burst = Math.max(0, elapsed - 0.15);
+  if (denaturedTaq) {
+    const sourceFade = Math.max(0, 1 - elapsed / 0.78);
+    context.save();
+    context.globalAlpha *= sourceFade;
+    context.rotate(-elapsed * 4.2);
+    const sourceScale = 1 + elapsed * 1.8;
+    context.scale(sourceScale, sourceScale);
+    context.drawImage(denaturedTaq, -18, -18, 36, 36);
+    context.restore();
+  }
   for (let i = 0; i < 24; i++) {
     const angle = i * 2.39996;
     const distance = burst * (28 + (i % 5) * 12);

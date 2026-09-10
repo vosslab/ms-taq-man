@@ -55,6 +55,60 @@ test("cabinet boots with a responsive canvas", async ({ page }) => {
   await expect(page.getByLabel("High score", { exact: true })).toHaveText(highScore ?? "");
 });
 
+test("desktop dashboard keeps the board and controls in a balanced 16:10 composition", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1920, height: 1200 });
+  await page.goto("/");
+  const geometry = await page.locator(".game-stage").evaluate((stage) => {
+    const board = stage.querySelector("canvas");
+    const sidebar = stage.querySelector(".game-sidebar");
+    if (!(board instanceof HTMLCanvasElement) || !(sidebar instanceof HTMLElement)) {
+      throw new Error("dashboard geometry elements are missing");
+    }
+    const stageBox = stage.getBoundingClientRect();
+    const boardBox = board.getBoundingClientRect();
+    const sidebarBox = sidebar.getBoundingClientRect();
+    const groups = [
+      ".dashboard-actions",
+      ".dashboard-settings",
+      ".score-grid",
+      ".run-status",
+      ".progress-group",
+      ".helper-group",
+    ].map((selector) => {
+      const group = sidebar.querySelector(selector);
+      if (!(group instanceof HTMLElement))
+        throw new Error(`dashboard group is missing: ${selector}`);
+      const box = group.getBoundingClientRect();
+      return { selector, top: box.top, bottom: box.bottom, left: box.left, right: box.right };
+    });
+    return {
+      ratio: stageBox.width / stageBox.height,
+      boardBottom: boardBox.bottom,
+      sidebarBottom: sidebarBox.bottom,
+      sidebar: {
+        top: sidebarBox.top,
+        bottom: sidebarBox.bottom,
+        left: sidebarBox.left,
+        right: sidebarBox.right,
+      },
+      groups,
+    };
+  });
+  expect(geometry.ratio).toBeGreaterThanOrEqual(1.55);
+  expect(geometry.ratio).toBeLessThanOrEqual(1.67);
+  expect(Math.abs(geometry.sidebarBottom - geometry.boardBottom)).toBeLessThanOrEqual(12);
+  for (const [index, group] of geometry.groups.entries()) {
+    expect(group.left).toBeGreaterThanOrEqual(geometry.sidebar.left);
+    expect(group.right).toBeLessThanOrEqual(geometry.sidebar.right);
+    expect(group.top).toBeGreaterThanOrEqual(geometry.sidebar.top);
+    expect(group.bottom).toBeLessThanOrEqual(geometry.sidebar.bottom);
+    const previous = geometry.groups[index - 1];
+    if (previous) expect(group.top).toBeGreaterThanOrEqual(previous.bottom);
+  }
+});
+
 test("400px layout supports keyboard steering and pause", async ({ page }) => {
   await page.setViewportSize({ width: 400, height: 900 });
   await page.goto("/");
@@ -64,6 +118,43 @@ test("400px layout supports keyboard steering and pause", async ({ page }) => {
   await page.keyboard.press("Escape");
   await expect(page.getByRole("status").filter({ hasText: "Paused" })).toBeVisible();
   await page.screenshot({ path: "test-results/mobile_controls.png", fullPage: true });
+});
+
+test("400px dashboard stacks readable controls and accepts maze swipes", async ({ page }) => {
+  await page.setViewportSize({ width: 400, height: 900 });
+  await page.goto("/");
+  const layout = await page.locator(".game-stage").evaluate((stage) => {
+    const canvas = stage.querySelector("canvas");
+    const sidebar = stage.querySelector(".game-sidebar");
+    if (!(canvas instanceof HTMLCanvasElement) || !(sidebar instanceof HTMLElement)) {
+      throw new Error("mobile dashboard elements are missing");
+    }
+    const stageStyle = getComputedStyle(stage);
+    const canvasBox = canvas.getBoundingClientRect();
+    const sidebarBox = sidebar.getBoundingClientRect();
+    const startButton = sidebar.querySelector("button");
+    if (!(startButton instanceof HTMLButtonElement)) throw new Error("start control is missing");
+    return {
+      columns: stageStyle.gridTemplateColumns.split(" ").length,
+      canvasBottom: canvasBox.bottom,
+      sidebarTop: sidebarBox.top,
+      startHeight: startButton.getBoundingClientRect().height,
+      textSize: Number.parseFloat(getComputedStyle(sidebar).fontSize),
+    };
+  });
+  expect(layout.columns).toBe(1);
+  expect(layout.sidebarTop).toBeGreaterThanOrEqual(layout.canvasBottom);
+  expect(layout.startHeight).toBeGreaterThanOrEqual(44);
+  expect(layout.textSize).toBeGreaterThanOrEqual(14);
+  await page.getByRole("button", { name: "Start cycle" }).click();
+  const maze = page.getByLabel("DNA template maze");
+  const box = await maze.boundingBox();
+  if (!box) throw new Error("maze has no visible bounding box");
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(box.x + box.width / 2 - 80, box.y + box.height / 2);
+  await page.mouse.up();
+  await expect(page.getByLabel("Bases synthesized")).not.toHaveText("0");
 });
 
 test("music and FX controls remain independent after reload", async ({ page }) => {

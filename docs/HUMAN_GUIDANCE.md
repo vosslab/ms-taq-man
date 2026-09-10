@@ -5,6 +5,9 @@
 
 - Favor arrow keys for steering; the on-screen direction pad is unnecessary.
 
+- Add an automated level-validation check that prevents open-space and hidden-wall
+  traps before a maze can ship.
+
 - Lean further into the logo's playful style details; the additional flair is welcome.
 
 - Give buddy/clamp-built DNA a different color so its contribution is visible.
@@ -33,10 +36,11 @@ origin belongs there too. Rules: [REPO_STYLE.md](REPO_STYLE.md).
 
 ## Review expectations
 
-- Covering 50% of the template OR collecting all primers advances the level.
+- Superseded by the difficulty-scaled target above: the earlier rule used 50%
+  template coverage OR every primer to advance the level.
 
-- Covering the entire screen with template is too hard; consider collecting all
-  primers or covering 50% of the play area as the cycle-clear condition.
+- Superseded by the difficulty-scaled target above: covering the entire screen
+  was too hard, so the earlier requested target was 50% or every primer.
 
 - Classify one-time rebuild checks separately from permanent pytest. Keep only deterministic,
   offline, quick behavior contracts; when in doubt, remove the test.

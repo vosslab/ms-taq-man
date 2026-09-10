@@ -79,7 +79,8 @@ protection prevents chew-back; hot-start protection lets you capture enemies.
 ## Sound and display
 
 The saved difficulty slider can change during play. It adjusts enemy movement
-while keeping Taq's speed and the two cycle-clear goals unchanged.
+while keeping Taq's speed fixed. The two alternative ways to clear a cycle stay
+available, while the template-coverage threshold changes with difficulty.
 
 | Difficulty | Enemy speed relative to original cycle tuning |
 | --- | --- |
@@ -106,3 +107,22 @@ hidden tab pauses active play; resume when you return.
 
 The desktop cabinet puts scores beside the square maze. Narrow screens place
 the dashboard below it.
+
+## Verification for maze and browser changes
+
+`./check_codebase.sh` includes validation of all four production levels: connected
+corridors, tunnel links, reachable pickups, enemy house-return routes, and no open
+two-by-two walkable rooms. Run it after changing a layout so open-space and
+hidden-wall traps cannot enter the playable set.
+
+`./run_playwright_tests.sh` runs the regular browser suite. The longer
+state-aware traversal driver is recorded manual acceptance, rather than regular
+CI: serve the built site in one terminal, then run this in a second terminal:
+
+```bash
+node tests/playwright/e2e/browser_traversal.mjs http://127.0.0.1:PORT/
+```
+
+It
+steers only with real arrow-key events and reads a detached copied projection for
+route decisions; it does not alter game state.

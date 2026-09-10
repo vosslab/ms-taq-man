@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 40" role="img" aria-labelledby="strand_ribbon_title strand_ribbon_desc">
+  <title id="strand_ribbon_title">Organic double-stranded DNA ribbon</title>
+  <desc id="strand_ribbon_desc">Two offset strands cross in an uneven helix joined by short base-pair rungs.</desc>
+  <g id="strand_ribbon_rungs" fill="none" stroke="#bddbb7" stroke-width="2" stroke-linecap="round" opacity=".9">
+    <path d="M8 18L8 22M21 12L21 28M35 14L35 26M49 25L49 15M63 28L63 12M77 24L77 16M89 14L89 26"/>
+  </g>
+  <g id="strand_ribbon_backbones" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path id="strand_ribbon_primary" d="M-2 23C8 31 15 30 23 19S39 7 48 17S62 31 72 21S87 8 98 18" stroke="#65efbb" stroke-width="4"/>
+    <path id="strand_ribbon_secondary" d="M-2 17C8 9 15 10 23 21S39 33 48 23S62 9 72 19S87 32 98 22" stroke="#84bfff" stroke-width="4"/>
+    <path id="strand_ribbon_highlight" d="M0 22C9 28 15 27 22 18S39 9 47 17" stroke="#efffe9" stroke-width="1" opacity=".75"/>
+  </g>
+</svg>

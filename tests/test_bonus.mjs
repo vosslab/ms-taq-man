@@ -4,6 +4,7 @@ import { createBonus, advanceBonus } from "../src/game/bonus.ts";
 import { mazeForCycle } from "../src/game/maze_layouts.ts";
 import { createActor } from "../src/game/actor.ts";
 import { tileKey } from "../src/game/coords.ts";
+import { createGame, tick } from "../src/game/game_state.ts";
 test("reagents enter and eventually exit all four mazes", () => {
   for (const cycle of [1, 2, 3, 4]) {
     const maze = mazeForCycle(cycle);
@@ -50,4 +51,23 @@ test("reagents tour upper and lower interior corridors before exiting", () => {
     assert.ok(visited.size > 30, `cycle ${cycle} remained near its entry`);
     assert.ok(upper && lower, `cycle ${cycle} did not tour both halves`);
   }
+});
+
+test("ordinary play schedules reagents at 15 and 45 seconds", () => {
+  const game = createGame();
+  game.phase = "playing";
+  game.enzymes = [];
+  game.player.actor.direction = "up";
+  game.player.actor.queued = "up";
+  tick(game, 14.99);
+  assert.equal(game.bonus, undefined);
+  tick(game, 0.01);
+  assert.ok(game.bonus);
+  assert.equal(game.bonusSpawns, 1);
+  game.bonus = undefined;
+  tick(game, 29.99);
+  assert.equal(game.bonus, undefined);
+  tick(game, 0.02);
+  assert.ok(game.bonus);
+  assert.equal(game.bonusSpawns, 2);
 });

@@ -22,6 +22,7 @@ export function createStrandLayer(colors: StrandColors = defaultStrandColors): {
   let revision = -1;
   const drawn = new Map<EdgeId, number>();
   const fading = new Map<EdgeId, { seed: number; started: number; clamp: boolean }>();
+  const dirtyMargin = 8;
   function stamp(
     ink: CanvasRenderingContext2D,
     maze: ReadOnly<Maze>,
@@ -34,8 +35,8 @@ export function createStrandLayer(colors: StrandColors = defaultStrandColors): {
     const inkColors = clamp
       ? { primary: "#d4a0ff", secondary: "#ff9ce4", rungs: "#f8ddff" }
       : colors;
-    const jitter = ((seed % 7) - 3) * 0.3;
-    const phase = ((seed % 101) / 101) * Math.PI * 2;
+    const jitter = ((seed % 13) - 6) * 0.18;
+    const phase = ((seed % 101) / 101) * Math.PI * 2 + ((seed >> 3) % 17) * 0.07;
     const ax = (edge.a.x + 0.5) * 24;
     const ay = (edge.a.y + 0.5) * 24 + jitter;
     const bx = (edge.b.x + 0.5) * 24;
@@ -75,27 +76,52 @@ export function createStrandLayer(colors: StrandColors = defaultStrandColors): {
       }
       // Clip the union once so intersecting repairs never double-stamp a strand.
       ink.save();
-      let left = layer.width;
-      let top = layer.height;
-      let right = 0;
-      let bottom = 0;
+      let hasDirtyRegion = false;
+      function addDirtyRegion(left: number, top: number, right: number, bottom: number): void {
+        const clippedLeft = Math.max(0, left);
+        const clippedTop = Math.max(0, top);
+        const clippedRight = Math.min(layer.width, right);
+        const clippedBottom = Math.min(layer.height, bottom);
+        if (clippedLeft >= clippedRight || clippedTop >= clippedBottom) return;
+        ink.rect(clippedLeft, clippedTop, clippedRight - clippedLeft, clippedBottom - clippedTop);
+        hasDirtyRegion = true;
+      }
+      ink.beginPath();
       for (const id of changed) {
         const edge = maze.edges.get(id);
         if (!edge) continue;
-        left = Math.min(left, Math.min(edge.a.x, edge.b.x) * 24);
-        top = Math.min(top, Math.min(edge.a.y, edge.b.y) * 24);
-        right = Math.max(right, (Math.max(edge.a.x, edge.b.x) + 1) * 24);
-        bottom = Math.max(bottom, (Math.max(edge.a.y, edge.b.y) + 1) * 24);
+        const ax = (edge.a.x + 0.5) * 24;
+        const ay = (edge.a.y + 0.5) * 24;
+        const bx = (edge.b.x + 0.5) * 24;
+        const by = (edge.b.y + 0.5) * 24;
+        if (edge.tunnel) {
+          // Tunnel strands are two short mouth segments.  Keeping them separate
+          // prevents a changed tunnel edge from dirtying the whole board row.
+          function addTunnelMouth(x: number, y: number): void {
+            if (x < layer.width / 2)
+              addDirtyRegion(0, y - dirtyMargin, x + dirtyMargin, y + dirtyMargin);
+            else addDirtyRegion(x - dirtyMargin, y - dirtyMargin, layer.width, y + dirtyMargin);
+          }
+          addTunnelMouth(ax, ay);
+          addTunnelMouth(bx, by);
+        } else {
+          addDirtyRegion(
+            Math.min(ax, bx) - dirtyMargin,
+            Math.min(ay, by) - dirtyMargin,
+            Math.max(ax, bx) + dirtyMargin,
+            Math.max(ay, by) + dirtyMargin,
+          );
+        }
       }
-      ink.beginPath();
-      ink.rect(left, top, Math.max(0, right - left), Math.max(0, bottom - top));
-      ink.clip();
-      ink.clearRect(0, 0, layer.width, layer.height);
-      drawn.clear();
-      for (const id of coverage.covered) {
-        const seed = coverage.seeds.get(id) ?? 0;
-        stamp(ink, maze, id, seed, coverage.clampBuilt.has(id));
-        drawn.set(id, seed);
+      if (hasDirtyRegion) {
+        ink.clip();
+        ink.clearRect(0, 0, layer.width, layer.height);
+        drawn.clear();
+        for (const id of coverage.covered) {
+          const seed = coverage.seeds.get(id) ?? 0;
+          stamp(ink, maze, id, seed, coverage.clampBuilt.has(id));
+          drawn.set(id, seed);
+        }
       }
       ink.restore();
       revision = coverage.revision;

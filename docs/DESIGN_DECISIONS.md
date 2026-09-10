@@ -24,6 +24,42 @@ authoritative code or contract document, rather than a person.
 
 ## Software design
 
+### Synchronous read-only renderer frame view
+
+**Decision.** Canvas rendering consumes a recursively read-only live game view
+after every completed fixed simulation batch. It does not deep-clone or freeze a
+per-frame game snapshot.
+
+**Why.** The browser runs the fixed simulation batch, synchronous canvas draw,
+and HUD scalar publication in one run-to-completion task. Recursive `ReadOnly`
+types preserve simulation ownership while avoiding allocation and copying of maze
+graphs and coverage collections on every frame.
+
+**Consequence.** Renderer and HUD code remain synchronous and read-only. Any
+future asynchronous render, worker transfer, or deferred consumer must receive
+an immutable frame snapshot at its boundary.
+
+**Owner.** `src/ui/game_loop.ts`, `src/ui/app.tsx`, `src/render/canvas_renderer.ts`,
+and `src/game/read_only.ts`.
+
+### Graph-aware procedural strand ribbon
+
+**Decision.** `src/art/strand_ribbon.svg` remains the editable visual specification
+and atlas-reviewed source artifact. `src/render/helix.ts` is the graph-aware
+production equivalent: it procedurally paints the paired backbones and base-pair
+rungs along each covered edge.
+
+**Why.** Per-edge seed variation, arbitrary edge direction, tunnel mouths,
+re-extension identity, fading, and bounded dirty repair require geometry aligned
+to the maze graph rather than repeated rectangular SVG stamping.
+
+**Consequence.** Changes to the ribbon's color or helix language update the SVG
+and procedural painter together, then rerun the SVG atlas and strand-render
+browser checks. Acceptance retains full-nest visual review at desktop and 400px.
+
+**Owner.** `src/art/strand_ribbon.svg`, `src/render/helix.ts`, and
+`src/render/strand_layer.ts`.
+
 ### Script placement follows workflow ownership
 
 **Decision.** Classify commands by audience, purpose, dependencies, and input/output boundary.

@@ -147,6 +147,40 @@ test("scheduled degradation preserves the strand until its due time", () => {
   assert.equal(game.coverage.covered.has(id), false);
 });
 
+test("an enzyme chews a covered edge after its delay and a player can rebuild it", () => {
+  const game = createGame();
+  const edge = [...game.maze.edges.values()].find(
+    (candidate) => candidate.a.y === candidate.b.y && Math.abs(candidate.a.x - candidate.b.x) === 1,
+  );
+  assert.ok(edge);
+  const direction = edge.b.x > edge.a.x ? "right" : "left";
+  const id = edgeId(edge.a, edge.b);
+  game.phase = "playing";
+  markEdge(game.coverage, id);
+  game.enzymes = game.enzymes.slice(0, 1);
+  const enzyme = game.enzymes[0];
+  enzyme.actor = createActor(edge.a);
+  enzyme.actor.direction = direction;
+  enzyme.actor.queued = direction;
+  enzyme.actor.destination = edge.b;
+  enzyme.actor.progress = 0.99;
+  tick(game, 0.01);
+  assert.ok(game.chewQueue.has(id));
+  game.enzymes = [];
+  tick(game, 3.99);
+  assert.equal(game.coverage.covered.has(id), true);
+  tick(game, 0.01);
+  assert.equal(game.coverage.covered.has(id), false);
+  game.player.actor = createActor(edge.a);
+  game.player.actor.direction = direction;
+  game.player.actor.queued = direction;
+  game.player.primed = true;
+  const comboBefore = game.rewards.combo;
+  tick(game, 1 / 5.5);
+  assert.equal(game.coverage.covered.has(id), true);
+  assert.equal(game.rewards.combo, comboBefore + 1);
+});
+
 test("each reagent grants its helpful power on collection", () => {
   for (const name of ["dNTP mix", "BSA", "DMSO", "betaine", "glycerol"]) {
     const game = createGame();
@@ -194,6 +228,28 @@ test("reagents can be collected across the tunnel wrap", () => {
   assert.equal(game.bonus, undefined);
   assert.equal(game.bonusScore, 100);
   assert.deepEqual(game.collectedReagents, ["Mg2+"]);
+});
+
+test("an enzyme collision is detected across the tunnel wrap", () => {
+  const game = createGame();
+  const left = game.maze.corridors.find((position) => position.x === 0);
+  const right = game.maze.corridors.find((position) => position.x === game.maze.width - 1);
+  assert.ok(left && right);
+  game.phase = "playing";
+  game.player.actor = createActor(left);
+  game.player.actor.direction = "left";
+  game.player.actor.queued = "left";
+  game.player.actor.destination = right;
+  game.player.actor.progress = 0.4;
+  game.enzymes = game.enzymes.slice(0, 1);
+  game.enzymes[0].actor = createActor(right);
+  game.enzymes[0].actor.direction = "right";
+  game.enzymes[0].actor.queued = "right";
+  game.enzymes[0].actor.destination = left;
+  game.enzymes[0].actor.progress = 0.4;
+  tick(game, 0);
+  assert.equal(game.phase, "dying");
+  assert.equal(game.lives, 2);
 });
 
 test("Recruited clamp rescues a collision, then needs time to recharge", () => {
