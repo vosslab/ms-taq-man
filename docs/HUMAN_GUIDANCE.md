@@ -22,6 +22,8 @@ origin belongs there too. Rules: [REPO_STYLE.md](REPO_STYLE.md).
 
 ## Working style
 
+- Make the game approximately 16:10, moving score and numbers into a side panel.
+
 - Dream big. Build on the ambition already present; make the work more excellent,
   durable, and complete through concrete next steps and dispatchable tasks.
 - Connect adjacent wall tiles into smooth boundaries. Make pickups resemble RNA primers,

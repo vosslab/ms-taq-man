@@ -2,6 +2,9 @@
 
 ### Additions and New Features
 
+- Use a wide desktop cabinet with a square maze and side dashboard; stack the
+  dashboard below the maze on narrow screens.
+
 - Show hot-start seconds remaining and warn of expiry with flashing frightened
   sprites, using a steady outline for reduced-motion users.
 

@@ -165,58 +165,58 @@ export function App(): JSX.Element {
         <h1>Ms Taq Man</h1>
       </header>
       <div class="game-stage">
-      <canvas
-        ref={(element) => {
-          canvas = element;
-        }}
-        aria-label="DNA template maze"
-        tabindex="0"
-      />
-      <aside class="game-sidebar" aria-label="Game dashboard">
-      <button
-        onClick={() => {
-          startGame(game);
-          void unlockMusic();
-          canvas.focus();
-        }}
-      >
-        Start cycle
-      </button>
-      <button
-        aria-pressed={!muted()}
-        onClick={() => {
-          void toggleMusic();
-        }}
-      >
-        Music {muted() ? "off" : "on"}
-      </button>
-      <span aria-live="polite">{audioMessage()}</span>
-      <p>
-        Bases <output aria-label="Bases synthesized">{bases()}</output>
-      </p>
-      <p role="status">{status()}</p>
-      <p>
-        Score {score()} · Best <output aria-label="High score">{highScore()}</output>
-      </p>
-      <label class="coverage-meter">
-        Template <output aria-label="Template coverage">{coverage().toFixed(1)}%</output> / 50%
-        <progress max="50" value={Math.min(50, coverage())} aria-label="Template synthesized" />
-      </label>
-      <p>
-        <output aria-label="Primers remaining">{primersLeft()}</output> primers left ·{" "}
-        {extending() ? "Extending DNA" : "Find an RNA primer to extend"}
-      </p>
-      <p>Clear the cycle: synthesize 50% OR collect every primer.</p>
-      <p aria-label="Hot-start protection">
-        Hot start: {hotStart() > 0 ? `${hotStart()} seconds` : "inactive"}
-      </p>
-      <TouchControls
-        move={move}
-        pause={() => {
-          game.paused = !game.paused;
-        }}
-      />
-      </aside>
+        <canvas
+          ref={(element) => {
+            canvas = element;
+          }}
+          aria-label="DNA template maze"
+          tabindex="0"
+        />
+        <aside class="game-sidebar" aria-label="Game dashboard">
+          <button
+            onClick={() => {
+              startGame(game);
+              void unlockMusic();
+              canvas.focus();
+            }}
+          >
+            Start cycle
+          </button>
+          <button
+            aria-pressed={!muted()}
+            onClick={() => {
+              void toggleMusic();
+            }}
+          >
+            Music {muted() ? "off" : "on"}
+          </button>
+          <span aria-live="polite">{audioMessage()}</span>
+          <p>
+            Bases <output aria-label="Bases synthesized">{bases()}</output>
+          </p>
+          <p role="status">{status()}</p>
+          <p>
+            Score {score()} · Best <output aria-label="High score">{highScore()}</output>
+          </p>
+          <label class="coverage-meter">
+            Template <output aria-label="Template coverage">{coverage().toFixed(1)}%</output> / 50%
+            <progress max="50" value={Math.min(50, coverage())} aria-label="Template synthesized" />
+          </label>
+          <p>
+            <output aria-label="Primers remaining">{primersLeft()}</output> primers left ·{" "}
+            {extending() ? "Extending DNA" : "Find an RNA primer to extend"}
+          </p>
+          <p>Clear the cycle: synthesize 50% OR collect every primer.</p>
+          <p aria-label="Hot-start protection">
+            Hot start: {hotStart() > 0 ? `${hotStart()} seconds` : "inactive"}
+          </p>
+          <TouchControls
+            move={move}
+            pause={() => {
+              game.paused = !game.paused;
+            }}
+          />
+        </aside>
       </div>
       <footer>Anneal. Extend. Survive.</footer>
     </main>

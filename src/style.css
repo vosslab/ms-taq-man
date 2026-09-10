@@ -15,9 +15,16 @@
 }
 * { box-sizing: border-box; }
 body { margin: 0; }
-.cabinet { width: min(100% - 24px, 680px); margin: 24px auto; }
+.cabinet { width: min(100% - 32px, 1180px); margin: 16px auto; }
+.game-stage { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, .6fr); gap: 20px; align-items: start; }
+.game-sidebar { min-width: 0; padding: 18px; background: #102031; border: 1px solid #294f65; border-radius: 18px; }
+.game-sidebar > button { padding: 10px 16px; margin: 0 6px 8px 0; }
+.game-sidebar p { margin: 12px 0; line-height: 1.4; }
+.game-sidebar output { color: var(--color-primer); font-variant-numeric: tabular-nums; }
+.game-sidebar .coverage-meter { flex-wrap: wrap; }
+.game-sidebar .coverage-meter progress { flex-basis: 100%; }
 header, footer { text-align: center; }
-h1 { font-size: clamp(2rem, 8vw, 4rem); margin: 0 0 20px; color: var(--color-primer); }
+h1 { font-size: clamp(2rem, 4vw, 3rem); margin: 0 0 14px; color: var(--color-primer); }
 .eyebrow { letter-spacing: .25em; font-size: .75rem; }
 canvas { display: block; width: 100%; aspect-ratio: 1; border: 2px solid var(--color-backbone); border-radius: 18px; background: #050b15; }
 footer { padding: 18px; color: var(--color-strand); }
@@ -33,6 +40,12 @@ button:focus-visible, canvas:focus-visible { outline: 3px solid var(--color-prim
 .touch-controls .pause { grid-area: 2 / 2; }
 .touch-controls .right { grid-area: 2 / 3; }
 .touch-controls .down { grid-area: 3 / 2; }
+@media (max-width: 740px) {
+  .game-stage { grid-template-columns: 1fr; }
+  .cabinet { max-width: 540px; }
+  .game-sidebar { padding: 12px; }
+  .game-sidebar p { font-size: .85rem; margin: 8px 0; }
+}
 @media (max-width: 480px) {
   .cabinet { margin: 10px auto; }
   h1 { margin-bottom: 8px; }
