@@ -117,7 +117,7 @@ export function recordEvent(game: Game, event: GameEvent): void {
     const points = enzymePoints(game.chain++);
     announce(game.rewards, `TAQ ATTACK! +${points}`);
     game.bonusScore += points;
-  } else if (markEdge(game.coverage, event.edge)) {
+  } else if (markEdge(game.coverage, event.edge, event.type === "buddy_extend")) {
     game.lastProgressTime = game.time;
     if (event.type === "extend") game.bonusScore += synthesisReward(game.rewards);
   }
@@ -189,6 +189,11 @@ export function tick(game: Game, seconds: number): void {
   }
   advanceBuddy(game.buddy, game.maze, game.player.actor, seconds, (edge) => {
     game.chewQueue.delete(edge);
+    if (!game.coverage.covered.has(edge)) {
+      game.buddy.lastBuilt = edge;
+      game.buddy.buildGlow = 1.2;
+      announce(game.rewards, "CLAMP BUILT DNA +10 bases");
+    }
     recordEvent(game, { type: "buddy_extend", edge });
   });
   // Reaching either goal completes the player's turn before enemies can undo it.
@@ -281,10 +286,11 @@ export function tick(game: Game, seconds: number): void {
         enzyme.mode = "eaten";
         continue;
       }
+      if (game.buddy.protection > 0) continue;
       if (game.buddy.active && game.buddy.rescueTimer <= 0) {
         game.buddy.rescueTimer = 20;
-        game.frightened = Math.max(game.frightened, 3);
-        announce(game.rewards, "CLAMP RESCUE! 3s protection");
+        game.buddy.protection = 3;
+        announce(game.rewards, "CLAMP SHIELD! Pass through enemies for 3s");
         continue;
       }
       game.lives--;

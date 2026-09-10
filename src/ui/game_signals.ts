@@ -67,13 +67,15 @@ export function createGameSignals(initial: Readonly<Game>): GameSignals {
       setRewardMessage(game.rewards.messageTimer > 0 ? game.rewards.message : "");
       setBoosts(
         [
-          !game.buddy.active
-            ? game.time < 5
-              ? "Sliding clamp arriving soon"
-              : "Collect the mint protein ring to recruit your helper"
-            : game.buddy.rescueTimer > 0
-              ? `Clamp rescue recharges in ${Math.ceil(game.buddy.rescueTimer)}s`
-              : "Clamp rescue ready",
+          game.buddy.protection > 0
+            ? `Clamp shield ${Math.ceil(game.buddy.protection)}s - enemies cannot hurt you`
+            : !game.buddy.active
+              ? game.time < 5
+                ? "Sliding clamp arriving soon"
+                : "Collect the mint protein ring to recruit your helper"
+              : game.buddy.rescueTimer > 0
+                ? `Clamp rescue recharges in ${Math.ceil(game.buddy.rescueTimer)}s`
+                : "Clamp rescue ready",
           game.rewards.combo >= 8
             ? `Synthesis x${Math.min(4, 1 + Math.floor(game.rewards.combo / 8))}`
             : "",

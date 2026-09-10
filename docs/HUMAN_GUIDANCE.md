@@ -1,5 +1,12 @@
 # Human guidance
 
+- Lean further into the logo's playful style details; the additional flair is welcome.
+
+- Give buddy/clamp-built DNA a different color so its contribution is visible.
+
+- Buddy help must be understandable: its DNA construction should be visible,
+  and it should not unexpectedly cause ghosts to be eaten.
+
 - Default template coverage to advance is 60%; difficulty raises or lowers it.
   Collecting every primer remains an alternate cycle-clear condition.
 

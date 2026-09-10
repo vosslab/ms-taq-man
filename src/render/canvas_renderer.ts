@@ -96,6 +96,27 @@ export function createRenderer(
         );
       }
     }
+    if (game.buddy.buildGlow > 0 && game.buddy.lastBuilt) {
+      const edge = maze.edges.get(game.buddy.lastBuilt);
+      if (edge) {
+        context.save();
+        context.globalAlpha = Math.min(1, game.buddy.buildGlow);
+        context.strokeStyle = "#f2fff4";
+        context.lineWidth = 5;
+        context.beginPath();
+        if (edge.tunnel) {
+          for (const end of [edge.a, edge.b]) {
+            context.moveTo((end.x + 0.5) * 24, (end.y + 0.5) * 24);
+            context.lineTo(end.x === 0 ? 0 : layer.width, (end.y + 0.5) * 24);
+          }
+        } else {
+          context.moveTo((edge.a.x + 0.5) * 24, (edge.a.y + 0.5) * 24);
+          context.lineTo((edge.b.x + 0.5) * 24, (edge.b.y + 0.5) * 24);
+        }
+        context.stroke();
+        context.restore();
+      }
+    }
     const buddy = actorLocation(game.buddy.actor, maze);
     const buddySprite = atlas.get("buddy");
     if (buddySprite && game.phase !== "attract" && (game.buddy.active || game.time >= 5)) {
@@ -111,6 +132,15 @@ export function createRenderer(
       context.restore();
     }
     const location = actorLocation(game.player.actor, maze);
+    if (game.buddy.protection > 0) {
+      context.save();
+      context.strokeStyle = "#9cf0ce";
+      context.lineWidth = 3;
+      context.beginPath();
+      context.arc(location.x * 24, location.y * 24, 17, 0, Math.PI * 2);
+      context.stroke();
+      context.restore();
+    }
     for (const activator of maze.activators) {
       if (!game.activators.has(tileKey(activator))) continue;
       const power = atlas.get("hot_start");

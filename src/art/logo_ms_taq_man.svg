@@ -1,8 +1,30 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 100">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 120">
 <title>Ms Taq Man</title>
-<g fill="none" stroke-width="4" opacity=".65">
-<path stroke="#74efbd" d="M10 64Q55 12 100 64T190 64T280 64T370 64T460 64T550 64L590 40"/>
-<path stroke="#50cff7" d="M10 36Q55 88 100 36T190 36T280 36T370 36T460 36T550 36L590 60"/>
+<style>
+.sparkle { transform-box: fill-box; transform-origin: center; animation: shimmer 3.6s ease-in-out infinite alternate; }
+.late { animation-delay: -1.8s; }
+@keyframes shimmer { from { opacity: .45; transform: scale(.8); } to { opacity: 1; transform: scale(1.1); } }
+@media (prefers-reduced-motion: reduce) { .sparkle { animation: none; } }
+</style>
+<g id="helix" fill="none" stroke-width="4" opacity=".8">
+<path stroke="#74efbd" d="M10 74Q55 22 100 74T190 74T280 74T370 74T460 74T550 74L590 50"/>
+<path stroke="#50cff7" d="M10 46Q55 98 100 46T190 46T280 46T370 46T460 46T550 46L590 70"/>
+<path stroke="#84bfff" stroke-width="2" d="M25 49V71M48 43V77M565 49V71M580 51V69"/>
 </g>
-<text x="300" y="68" text-anchor="middle" font-family="Arial Rounded MT Bold,Arial,sans-serif" font-size="64" font-weight="900" letter-spacing="2" fill="#ffdc70" stroke="#09111f" stroke-width="7" paint-order="stroke">MS TAQ MAN</text>
+<g id="nucleotides" stroke="#173347" stroke-width="2">
+<circle cx="30" cy="42" r="6" fill="#ff9ce4"/><circle cx="560" cy="78" r="6" fill="#d4a0ff"/>
+<circle cx="48" cy="79" r="4" fill="#ffdc70"/><circle cx="582" cy="47" r="4" fill="#74efbd"/>
+</g>
+<text x="300" y="83" text-anchor="middle" font-family="Arial Rounded MT Bold,Arial,sans-serif" font-size="64" font-weight="900" letter-spacing="2" fill="#bd647d" stroke="#09111f" stroke-width="8" paint-order="stroke">MS TAQ MAN</text>
+<text x="300" y="76" text-anchor="middle" font-family="Arial Rounded MT Bold,Arial,sans-serif" font-size="64" font-weight="900" letter-spacing="2" fill="#ffdc70" stroke="#09111f" stroke-width="7" paint-order="stroke">MS TAQ MAN</text>
+<g id="molecular_bow" stroke="#173347" stroke-width="3" stroke-linejoin="round">
+<path fill="#74efbd" d="M81 29L67 10L64 35L82 32L101 9L107 32Z"/>
+<circle cx="84" cy="26" r="7" fill="#fff0ab"/>
+</g>
+<g fill="#fff1b5" stroke="#173347" stroke-width="1.5">
+<path class="sparkle" d="M518 8L521 18L531 21L521 24L518 34L515 24L505 21L515 18Z"/>
+<path class="sparkle late" d="M169 89L171 96L178 98L171 100L169 107L167 100L160 98L167 96Z"/>
+<path class="sparkle late" d="M397 11L399 17L405 19L399 21L397 27L395 21L389 19L395 17Z"/>
+</g>
+<path id="underline" d="M205 98Q300 112 395 98" fill="none" stroke="#50cff7" stroke-width="3" stroke-linecap="round"/>
 </svg>

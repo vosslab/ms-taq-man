@@ -23,7 +23,11 @@ never adds to the primer goal.
 
 Once recruited, the clamp follows Taq and builds or repairs DNA along its route.
 It periodically distracts Exo when far from Taq and rescues a dangerous collision
-with three seconds of protection, followed by a 20-second recharge. The dashboard
+with a visible three-second shield, followed by a 20-second recharge. The shield
+lets Taq pass through enemies; it does not make them edible. Newly built clamp
+DNA glows briefly and announces its added bases in the dashboard. Clamp-built
+DNA stays violet/pink; Taq-built DNA is green/blue. Rewalking preserves the color.
+If DNA is chewed away, its next builder determines the replacement color. The dashboard
 shows rescue readiness. Each new cycle offers a fresh clamp to collect.
 
 ## Controls

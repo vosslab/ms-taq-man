@@ -2,6 +2,30 @@
 
 ### Additions and New Features
 
+- Embellish the logo with a molecular bow, nucleotide beads, layered lettering,
+  a curved neon underline, and gently shimmering stars. Respect reduced motion.
+
+- Refresh README gameplay evidence for the current logo, 60-percent default,
+  light cabinet, collectible-clamp prompt, and DNA color key. Capture the full
+  document so taller dashboard content and the footer are not cropped.
+
+- Add browser regression coverage for live system light/dark cabinet switching
+  and reduced-motion scanline suppression without changing the saved setting.
+
+- Extend the clamp event regression to verify rendered ownership metadata and
+  document persistent strand colors and color changes after rebuilding.
+
+- Color clamp-built DNA violet/pink while Taq DNA stays green/blue, with a
+  dashboard key. Track the builder per synthesis event, preserve color on
+  rewalks and chew fades, and switch provenance only when an edge is rebuilt.
+
+- Show clamp construction feedback on both tunnel mouths for a wrapped DNA
+  edge, instead of omitting its glow or drawing a line across the maze.
+
+- Make clamp assistance explicit: highlight each newly built DNA edge and
+  announce added bases. Replace rescue-triggered frightened mode with a visible
+  three-second collision shield, so rescue no longer makes enemies edible.
+
 - Cancel active and scheduled FX voices when effects are disabled, the game is
   paused or hidden, or the controller is disposed. Verify mute and pause stop
   scheduled notes in Chromium Web Audio, preventing residual sound tails.

@@ -128,3 +128,18 @@ test("difficulty updates the coverage target and persists after reload", async (
   await page.keyboard.press("Home");
   await expect(target).toHaveAttribute("max", "50");
 });
+
+test("system theme changes the cabinet and reduced motion suppresses scanlines", async ({
+  page,
+}) => {
+  await page.emulateMedia({ colorScheme: "light", reducedMotion: "reduce" });
+  await page.goto("/");
+  const sidebar = page.locator(".game-sidebar");
+  await expect(sidebar).toHaveCSS("background-color", "rgb(255, 255, 255)");
+  const screen = page.locator(".maze-screen");
+  await expect(screen).toHaveClass(/scanlines/);
+  expect(await screen.evaluate((el) => getComputedStyle(el, "::after").display)).toBe("none");
+  await page.emulateMedia({ colorScheme: "dark", reducedMotion: "no-preference" });
+  await expect(sidebar).toHaveCSS("background-color", "rgb(16, 32, 49)");
+  expect(await screen.evaluate((el) => getComputedStyle(el, "::after").display)).not.toBe("none");
+});

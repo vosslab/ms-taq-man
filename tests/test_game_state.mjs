@@ -203,8 +203,10 @@ test("Recruited clamp rescues a collision, then needs time to recharge", () => {
   game.enzymes[0].actor = { ...game.player.actor };
   tick(game, 0);
   assert.equal(game.lives, 3);
-  assert.ok(game.frightened > 0 && game.buddy.rescueTimer > 0);
-  game.frightened = 0;
+  assert.ok(game.buddy.protection > 0 && game.buddy.rescueTimer > 0);
+  assert.equal(game.frightened, 0);
+  assert.notEqual(game.enzymes[0].mode, "eaten");
+  game.buddy.protection = 0;
   game.enzymes[0].mode = "chase";
   tick(game, 0);
   assert.equal(game.phase, "dying");
@@ -215,7 +217,7 @@ test("Recruited clamp builds template without changing the primer goal or player
   const edge = game.maze.edges.keys().next().value;
   const primers = game.primers.size;
   recordEvent(game, { type: "buddy_extend", edge });
-  assert.ok(game.coverage.covered.has(edge));
+  assert.ok(game.coverage.covered.has(edge) && game.coverage.clampBuilt.has(edge));
   assert.equal(game.primers.size, primers);
   assert.equal(game.rewards.combo, 0);
 });

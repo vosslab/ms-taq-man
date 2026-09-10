@@ -13,7 +13,7 @@ try {
   await page.waitForTimeout(700);
   await page.keyboard.press("Escape");
   await fs.mkdir("docs/screenshots", { recursive: true });
-  await page.screenshot({ path: "docs/screenshots/gameplay.png" });
+  await page.screenshot({ path: "docs/screenshots/gameplay.png", fullPage: true });
 } finally {
   await browser.close();
 }

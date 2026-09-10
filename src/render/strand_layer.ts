@@ -21,15 +21,19 @@ export function createStrandLayer(colors: StrandColors = defaultStrandColors): {
   let previousMaze: ReadOnly<Maze> | undefined;
   let revision = -1;
   const drawn = new Map<EdgeId, number>();
-  const fading = new Map<EdgeId, { seed: number; started: number }>();
+  const fading = new Map<EdgeId, { seed: number; started: number; clamp: boolean }>();
   function stamp(
     ink: CanvasRenderingContext2D,
     maze: ReadOnly<Maze>,
     id: EdgeId,
     seed: number,
+    clamp: boolean,
   ): void {
     const edge = maze.edges.get(id);
     if (!edge || !ink) return;
+    const inkColors = clamp
+      ? { primary: "#d4a0ff", secondary: "#ff9ce4", rungs: "#f8ddff" }
+      : colors;
     const jitter = ((seed % 7) - 3) * 0.3;
     const phase = ((seed % 101) / 101) * Math.PI * 2;
     const ax = (edge.a.x + 0.5) * 24;
@@ -37,9 +41,9 @@ export function createStrandLayer(colors: StrandColors = defaultStrandColors): {
     const bx = (edge.b.x + 0.5) * 24;
     const by = (edge.b.y + 0.5) * 24 + jitter;
     if (edge.tunnel) {
-      drawHelix(ink, ax, ay, edge.a.x === 0 ? 0 : layer.width, ay, phase, colors);
-      drawHelix(ink, bx, by, edge.b.x === 0 ? 0 : layer.width, by, phase, colors);
-    } else drawHelix(ink, ax, ay, bx, by, phase, colors);
+      drawHelix(ink, ax, ay, edge.a.x === 0 ? 0 : layer.width, ay, phase, inkColors);
+      drawHelix(ink, bx, by, edge.b.x === 0 ? 0 : layer.width, by, phase, inkColors);
+    } else drawHelix(ink, ax, ay, bx, by, phase, inkColors);
   }
   function paint(
     context: CanvasRenderingContext2D,
@@ -61,7 +65,8 @@ export function createStrandLayer(colors: StrandColors = defaultStrandColors): {
       for (const [id, seed] of drawn) {
         if (!coverage.covered.has(id) || seed !== coverage.seeds.get(id)) {
           changed.add(id);
-          if (!coverage.covered.has(id) && !reducedMotion) fading.set(id, { seed, started: time });
+          if (!coverage.covered.has(id) && !reducedMotion)
+            fading.set(id, { seed, started: time, clamp: coverage.clampBuilt.has(id) });
         }
       }
       for (const id of coverage.covered) {
@@ -89,7 +94,7 @@ export function createStrandLayer(colors: StrandColors = defaultStrandColors): {
       drawn.clear();
       for (const id of coverage.covered) {
         const seed = coverage.seeds.get(id) ?? 0;
-        stamp(ink, maze, id, seed);
+        stamp(ink, maze, id, seed, coverage.clampBuilt.has(id));
         drawn.set(id, seed);
       }
       ink.restore();
@@ -105,7 +110,7 @@ export function createStrandLayer(colors: StrandColors = defaultStrandColors): {
       }
       context.save();
       context.globalAlpha *= remaining;
-      stamp(context, maze, id, fade.seed);
+      stamp(context, maze, id, fade.seed, fade.clamp);
       context.restore();
     }
   }

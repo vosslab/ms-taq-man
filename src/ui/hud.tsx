@@ -33,6 +33,7 @@ export function Hud(props: { signals: GameSignals; highScore: number }): JSX.Ele
         {props.signals.extending() ? "Extending DNA" : "Find an RNA primer to extend"}
       </p>
       <p>Clear the cycle: synthesize {props.signals.coverageGoal()}% OR collect every primer.</p>
+      <p class="dna-key">DNA: Taq = green/blue; clamp = violet/pink.</p>
       <p aria-label="Active boosts">{props.signals.boosts()}</p>
       <p aria-label="Available reagent">{props.signals.reagent()}</p>
       <Show when={props.signals.collectedReagents().length > 0}>

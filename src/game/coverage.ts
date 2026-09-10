@@ -2,16 +2,19 @@ import type { EdgeId } from "./coords";
 
 export type Coverage = {
   covered: Set<EdgeId>;
+  clampBuilt: Set<EdgeId>;
   revision: number;
   bases: number;
   seeds: Map<EdgeId, number>;
 };
 export function createCoverage(): Coverage {
-  return { covered: new Set(), revision: 0, bases: 0, seeds: new Map() };
+  return { clampBuilt: new Set(), covered: new Set(), revision: 0, bases: 0, seeds: new Map() };
 }
-export function markEdge(coverage: Coverage, id: EdgeId): boolean {
+export function markEdge(coverage: Coverage, id: EdgeId, clamp = false): boolean {
   if (coverage.covered.has(id)) return false;
   coverage.covered.add(id);
+  if (clamp) coverage.clampBuilt.add(id);
+  else coverage.clampBuilt.delete(id);
   coverage.revision++;
   coverage.bases += 10;
   let seed = 17;

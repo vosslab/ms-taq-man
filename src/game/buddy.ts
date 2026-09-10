@@ -6,6 +6,9 @@ import type { Maze } from "./maze";
 import { routeDirection } from "./routing";
 
 export function createBuddy(maze: Maze): {
+  protection: number;
+  lastBuilt: EdgeId | undefined;
+  buildGlow: number;
   active: boolean;
   actor: Actor;
   buildTimer: number;
@@ -14,6 +17,9 @@ export function createBuddy(maze: Maze): {
   pulseTimer: number;
 } {
   return {
+    protection: 0,
+    lastBuilt: undefined,
+    buildGlow: 0,
     active: false,
     actor: createActor(
       maze.corridors.find(
@@ -35,6 +41,8 @@ export function advanceBuddy(
   build: (edge: EdgeId) => void,
 ): void {
   if (!buddy.active) return;
+  buddy.protection = Math.max(0, buddy.protection - seconds);
+  buddy.buildGlow = Math.max(0, buddy.buildGlow - seconds);
   buddy.buildTimer = Math.max(0, buddy.buildTimer - seconds);
   buddy.rescueTimer = Math.max(0, buddy.rescueTimer - seconds);
   buddy.distraction = Math.max(0, buddy.distraction - seconds);
