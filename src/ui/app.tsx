@@ -35,8 +35,8 @@ export function App(): JSX.Element {
     setAudioMessage("");
   }
   const [muted, setMuted] = createSignal(true);
-  const [scanlines, setScanlines] = createSignal(false);
-  let rememberScanlines: (value: boolean) => void = () => {};
+  const [scanlineStrength, setScanlineStrength] = createSignal(3);
+  let rememberStrength: (value: number) => void = () => {};
   const [audioMessage, setAudioMessage] = createSignal("");
   let rememberSound: (value: boolean) => void = () => {};
   async function toggleMusic(): Promise<void> {
@@ -83,9 +83,10 @@ export function App(): JSX.Element {
     }
     if (storage) save = readSave(storage);
     setMuted(save.muted);
-    setScanlines(save.scanlines);
-    rememberScanlines = (value: boolean): void => {
-      save.scanlines = value;
+    setScanlineStrength(save.scanlines ? save.scanlineStrength : 0);
+    rememberStrength = (value: number): void => {
+      save.scanlineStrength = value;
+      save.scanlines = value > 0;
       if (storage) writeSave(storage, save);
     };
     setFxMuted(save.fxMuted);
@@ -175,7 +176,11 @@ export function App(): JSX.Element {
         <h1>Ms Taq Man</h1>
       </header>
       <div class="game-stage">
-        <div class="maze-screen" classList={{ scanlines: scanlines() }}>
+        <div
+          class="maze-screen"
+          classList={{ scanlines: scanlineStrength() > 0 }}
+          style={{ "--scanline-opacity": String(0.14 + scanlineStrength() * 0.12) }}
+        >
           <canvas
             ref={(element) => {
               canvas = element;
@@ -217,14 +222,23 @@ export function App(): JSX.Element {
             Turn FX {fxMuted() ? "on" : "off"}
           </button>
           <span aria-live="polite">{audioMessage()}</span>
-          <button
-            onClick={() => {
-              setScanlines(!scanlines());
-              rememberScanlines(scanlines());
-            }}
-          >
-            Turn scanlines {scanlines() ? "off" : "on"}
-          </button>
+          <label class="scanline-strength">
+            Scanline strength:{" "}
+            <output>{scanlineStrength() === 0 ? "Off" : scanlineStrength()}</output> / 5
+            <input
+              type="range"
+              min="0"
+              max="5"
+              step="1"
+              value={scanlineStrength()}
+              aria-label="Scanline strength"
+              onInput={(event) => {
+                const value = event.currentTarget.valueAsNumber;
+                setScanlineStrength(value);
+                rememberStrength(value);
+              }}
+            />
+          </label>
           <Overlays phase={hud.phase()} paused={hud.paused()} timer={hud.transitionTimer()} />
           <Hud signals={hud} highScore={highScore()} />
           <TouchControls

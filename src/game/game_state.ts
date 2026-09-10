@@ -10,10 +10,12 @@ import { levelForCycle, placePrimers } from "./level_table";
 import { advanceBonus, createBonus } from "./bonus";
 import type { Bonus } from "./bonus";
 import { waveMode } from "./waves";
+import { createRewards, advanceRewards, synthesisReward, announce } from "./arcade_rewards";
 
 export type GameEvent =
   { type: "extend"; edge: EdgeId } | { type: "direction"; direction: Direction };
 export function createGame(): {
+  rewards: ReturnType<typeof createRewards>;
   maze: ReturnType<typeof firstMaze>;
   player: ReturnType<typeof createPlayer>;
   coverage: ReturnType<typeof createCoverage>;
@@ -41,6 +43,7 @@ export function createGame(): {
 } {
   const maze = firstMaze();
   return {
+    rewards: createRewards(),
     maze,
     player: createPlayer(maze),
     coverage: createCoverage(),
@@ -74,6 +77,7 @@ export function startGame(game: Game): void {
   game.transitionTimer = 1;
 }
 export function nextCycle(game: Game): void {
+  game.rewards = createRewards();
   game.completedBases += game.coverage.bases;
   game.cycle++;
   game.bonus = undefined;
@@ -95,7 +99,10 @@ export function nextCycle(game: Game): void {
 }
 export function recordEvent(game: Game, event: GameEvent): void {
   if (event.type === "direction") queueDirection(game.player.actor, event.direction);
-  else if (markEdge(game.coverage, event.edge)) game.lastProgressTime = game.time;
+  else if (markEdge(game.coverage, event.edge)) {
+    game.lastProgressTime = game.time;
+    game.bonusScore += synthesisReward(game.rewards);
+  }
 }
 export function tick(game: Game, seconds: number): void {
   const level = levelForCycle(game.cycle);
@@ -131,6 +138,7 @@ export function tick(game: Game, seconds: number): void {
   }
   if (game.phase !== "playing" || game.paused) return;
   game.time += seconds;
+  advanceRewards(game.rewards, seconds);
   if (
     !game.extraLifeAwarded &&
     game.completedBases + game.coverage.bases + game.bonusScore >= 10000
@@ -140,8 +148,12 @@ export function tick(game: Game, seconds: number): void {
   }
   if (game.frightened <= 0) game.waveTime += seconds;
   game.frightened = Math.max(0, game.frightened - seconds);
-  advancePlayer(game.player, game.maze, game.primers, seconds * level.playerSpeed, (edge) =>
-    recordEvent(game, { type: "extend", edge }),
+  advancePlayer(
+    game.player,
+    game.maze,
+    game.primers,
+    seconds * level.playerSpeed * (game.rewards.speedTimer > 0 ? 1.2 : 1),
+    (edge) => recordEvent(game, { type: "extend", edge }),
   );
   // Reaching either goal completes the player's turn before enemies can undo it.
   if (game.coverage.covered.size * 2 >= game.maze.edges.size || game.primers.size === 0) {
@@ -150,6 +162,7 @@ export function tick(game: Game, seconds: number): void {
     return;
   }
   if (game.activators.delete(tileKey(game.player.actor.position))) {
+    announce(game.rewards, "TAQ ATTACK!");
     game.frightened = level.frightened;
     game.chain = 0;
   }
@@ -161,7 +174,11 @@ export function tick(game: Game, seconds: number): void {
     seconds,
     game.frightened > 0,
     (edge) => {
-      if (game.coverage.covered.has(edge) && !game.chewQueue.has(edge))
+      if (
+        game.rewards.shieldTimer <= 0 &&
+        game.coverage.covered.has(edge) &&
+        !game.chewQueue.has(edge)
+      )
         game.chewQueue.set(edge, game.time + level.chewDelay);
     },
     level,
@@ -182,6 +199,25 @@ export function tick(game: Game, seconds: number): void {
     advanceBonus(game.bonus, game.maze, seconds);
     const reagent = actorLocation(game.bonus.actor, game.maze);
     if (Math.hypot(player.x - reagent.x, player.y - reagent.y) < 0.7) {
+      const name = game.bonus.name;
+      announce(game.rewards, `${name.toUpperCase()} BOOST!`);
+      if (name === "Mg2+") game.frightened = Math.max(game.frightened, 4);
+      if (name === "dNTP mix") game.bonusScore += 500;
+      if (name === "BSA") {
+        game.rewards.shieldTimer = 10;
+        game.chewQueue.clear();
+      }
+      if (name === "DMSO") game.rewards.speedTimer = 8;
+      if (name === "betaine") {
+        game.rewards.combo = 24;
+        game.rewards.comboTimer = 10;
+      }
+      if (name === "hot-start antibody") game.frightened = Math.max(game.frightened, 10);
+      if (name === "glycerol") {
+        game.rewards.speedTimer = 5;
+        game.rewards.shieldTimer = 5;
+        game.chewQueue.clear();
+      }
       game.bonusScore += game.bonus.points;
       game.bonus = undefined;
     } else if (game.bonus.finished) game.bonus = undefined;
@@ -191,12 +227,14 @@ export function tick(game: Game, seconds: number): void {
     const dx = Math.abs(player.x - enemy.x);
     if (Math.hypot(Math.min(dx, game.maze.width - dx), player.y - enemy.y) < 0.65) {
       if (enzyme.mode === "eaten") continue;
-      if (enzyme.mode === "frightened") {
+      if (enzyme.mode === "frightened" || game.frightened > 0) {
+        announce(game.rewards, `TAQ ATTACK! +${enzymePoints(game.chain)}`);
         game.bonusScore += enzymePoints(game.chain++);
         enzyme.mode = "eaten";
         continue;
       }
       game.lives--;
+      game.rewards = createRewards();
       game.deathTimer = 2.8;
       game.phase = "dying";
       return;

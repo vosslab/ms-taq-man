@@ -3,6 +3,26 @@ import assert from "node:assert/strict";
 import { createGame, recordEvent, tick } from "../src/game/game_state.ts";
 import { parseMaze } from "../src/game/maze.ts";
 import { createPlayer } from "../src/game/player.ts";
+import { createBonus } from "../src/game/bonus.ts";
+import { createActor } from "../src/game/actor.ts";
+
+test("protection reagents protect on the pickup frame before an enemy collision", () => {
+  for (const name of ["Mg2+", "hot-start antibody"]) {
+    const game = createGame();
+    game.phase = "playing";
+    game.bonus = createBonus(game.maze, 1);
+    game.bonus.name = name;
+    game.bonus.actor = createActor(game.maze.start);
+    game.enzymes = game.enzymes.slice(0, 1);
+    game.enzymes[0].actor = createActor(game.maze.start);
+    tick(game, 0);
+    assert.equal(game.phase, "playing");
+    assert.equal(game.lives, 3);
+    assert.equal(game.enzymes[0].mode, "eaten");
+    assert.ok(game.frightened >= 4);
+    assert.equal(game.bonus, undefined);
+  }
+});
 
 test("walking onto the last primer advances after an unprimed respawn", () => {
   const game = createGame();
@@ -42,7 +62,7 @@ test("completed template advances through thermal intermission to the next maze"
   assert.equal(game.completedBases, bases);
   assert.equal(game.player.primed, false);
 });
-import { createActor } from "../src/game/actor.ts";
+
 import { edgeId, tileKey } from "../src/game/coords.ts";
 import { markEdge } from "../src/game/coverage.ts";
 

@@ -2,6 +2,18 @@
 
 ### Additions and New Features
 
+- Consolidate scanlines into one 0-5 slider, with zero disabling the effect.
+
+- Add persisted scanline strength from 1 to 5, defaulting to 3. Retain the separate
+  off switch and reduced-motion behavior; validate saved strength values.
+
+- Add fresh-synthesis combo bonuses, TAQ ATTACK callouts, and helpful reagent
+  powers: protection, speed, bonus points, and combo boosts. Keep enemy tuning
+  and the 50% template OR all primers goal unchanged.
+
+- Make death a full-board scene: desaturate and dim the maze and actors, draw the
+  coil last, move it to center, and spin and zoom it across the board.
+
 - Add the player guide covering both cycle-clear goals, queued turns, priming,
   enemies, bonuses, sound settings, and browser persistence; link it from README.
 
@@ -67,6 +79,21 @@
   returning enemy state, and delayed Exo degradation of covered edges.
 
 ### Fixes and Maintenance
+
+- Add browser coverage for keyboard-adjusted scanline endpoints and persistence,
+  and update the player guide for the unified slider.
+
+- Move live combo and reward announcements into reserved dashboard space so
+  they cannot obscure the maze during play.
+
+- Apply reagent protection to collisions on the pickup frame, closing a timing
+  gap where an enemy could still kill Taq before its frightened state updated.
+
+- Strengthen scanlines to a visible two-pixel dark band every five pixels with
+  a subtle highlight between bands.
+
+- Preserve both wall outlines at diagonal tile contacts. The previous single-edge
+  vertex map could drop boundaries and make collision walls appear to be open floor.
 
 - Add an explicit acceptance ledger separating focused test evidence from missing
   artwork, full-run gameplay, performance, and release gates.

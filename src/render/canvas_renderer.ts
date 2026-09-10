@@ -19,6 +19,10 @@ export function createRenderer(
   const layer = document.createElement("canvas");
   layer.width = maze.width * 24;
   layer.height = maze.height * 24;
+  const deathBoard = document.createElement("canvas");
+  deathBoard.width = layer.width;
+  deathBoard.height = layer.height;
+  const deathInk = deathBoard.getContext("2d");
   const layerContext = layer.getContext("2d");
   if (!layerContext) throw new Error("Maze layer is unavailable");
   const backbone = getComputedStyle(document.documentElement).getPropertyValue("--color-backbone");
@@ -84,9 +88,7 @@ export function createRenderer(
         );
     }
     const taq = atlas.get("taq_man");
-    if (game.phase === "dying") {
-      drawDeath(context, location.x * 24, location.y * 24, game.deathTimer, reducedMotion.matches);
-    } else if (taq?.complete && taq.naturalWidth) {
+    if (game.phase !== "dying" && taq?.complete && taq.naturalWidth) {
       context.save();
       context.translate(location.x * 24, location.y * 24);
       const angle = { right: 0, down: Math.PI / 2, left: Math.PI, up: -Math.PI / 2 };
@@ -137,6 +139,21 @@ export function createRenderer(
       const bonusSprite = atlas.get("reagent_magnesium");
       if (bonusSprite?.complete && bonusSprite.naturalWidth)
         context.drawImage(bonusSprite, reagent.x * 24 - 14, reagent.y * 24 - 14, 28, 28);
+    }
+    if (game.phase === "dying") {
+      if (deathInk) {
+        deathInk.clearRect(0, 0, deathBoard.width, deathBoard.height);
+        deathInk.drawImage(canvas, 0, 0, deathBoard.width, deathBoard.height);
+        context.save();
+        context.filter = "grayscale(1) brightness(0.65)";
+        context.drawImage(deathBoard, 0, 0);
+        context.restore();
+      }
+      const elapsed = Math.max(0, 2.8 - game.deathTimer);
+      const travel = reducedMotion.matches ? 0 : Math.min(1, elapsed / 0.8);
+      const x = location.x * 24 * (1 - travel) + (layer.width / 2) * travel;
+      const y = location.y * 24 * (1 - travel) + (layer.height / 2) * travel;
+      drawDeath(context, x, y, game.deathTimer, reducedMotion.matches);
     }
     if (game.phase === "cycle_complete")
       drawCelebration(

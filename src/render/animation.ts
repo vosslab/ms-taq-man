@@ -35,8 +35,9 @@ export function drawDeath(
     context.fillRect(-3, -2, 6 * Math.max(0.2, 1 - burst / 3), 4);
     context.restore();
   }
-  context.rotate(Math.sin(elapsed * 14) * 0.25 * (1 - unfold));
-  context.scale(1 + unfold * 1.5, 1 + unfold * 0.7);
+  context.rotate(elapsed * elapsed * 2.4);
+  const zoom = 1 + unfold * unfold * 7;
+  context.scale(zoom, zoom);
   if (!reducedMotion) {
     context.strokeStyle = "#ffb46f";
     context.lineWidth = 2;

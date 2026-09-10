@@ -54,3 +54,11 @@ origin belongs there too. Rules: [REPO_STYLE.md](REPO_STYLE.md).
 - Make the music more interesting and provide separate music and sound-effect controls.
 - Vary the music more and make the death animation even more over the top.
 - Make level completion more exciting with flashing wall colors and lots of confetti.
+- Make death fill the game board: turn the walls and game black and white while
+  the unraveled polymerase spins and zooms in.
+- Make the additions crazy fun and probably easier, not harder: wild spectacle
+  and helpful rewards rather than extra difficulty.
+- Keep the scanline effect and make it more obvious; the subtle version was too hard to see.
+- Keep chain-reaction messages off the game board; they block play.
+- Make scanlines adjustable from 1 to 5, with an even stronger effect available.
+- Use one 0-5 scanline strength control; 0 means off.

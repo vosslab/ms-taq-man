@@ -10,12 +10,15 @@ export function paintMaze(
   context.strokeStyle = backbone;
   context.fillStyle = "#102839";
   context.lineWidth = 1.5;
-  const edges = new Map<string, { x: number; y: number }>();
+  const edges = new Map<string, { x: number; y: number }[]>();
   function wall(x: number, y: number): boolean {
     return maze.rows[y]?.[x] === "#";
   }
   function edge(x: number, y: number, endX: number, endY: number): void {
-    edges.set(`${x},${y}`, { x: endX, y: endY });
+    const key = `${x},${y}`;
+    const outgoing = edges.get(key) ?? [];
+    outgoing.push({ x: endX, y: endY });
+    edges.set(key, outgoing);
   }
   for (let y = 0; y < maze.height; y++) {
     for (let x = 0; x < maze.width; x++) {
@@ -31,11 +34,26 @@ export function paintMaze(
     const start = edges.keys().next().value;
     if (start === undefined) break;
     let key = start;
+    let heading: { x: number; y: number } | undefined;
     const points: { x: number; y: number }[] = [];
     do {
-      const next = edges.get(key);
+      const outgoing = edges.get(key);
+      if (!outgoing?.length) break;
+      const [x = 0, y = 0] = key.split(",").map(Number);
+      // Keep wall material on the right at diagonal contacts. Each boundary
+      // must survive even when several edges share the same grid vertex.
+      const incoming = heading;
+      let choice = 0;
+      if (incoming && outgoing.length > 1) {
+        choice = outgoing.findIndex(
+          (end) => incoming.x * (end.y - y) - incoming.y * (end.x - x) > 0,
+        );
+        if (choice < 0) choice = 0;
+      }
+      const next = outgoing.splice(choice, 1)[0];
       if (!next) break;
-      edges.delete(key);
+      if (!outgoing.length) edges.delete(key);
+      heading = { x: next.x - x, y: next.y - y };
       points.push({ x: next.x * size, y: next.y * size });
       key = `${next.x},${next.y}`;
     } while (key !== start);

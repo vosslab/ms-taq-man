@@ -51,7 +51,8 @@ shows amplification progress separately from your score.
   and completion cues.
 - Both sound channels start muted. Browsers require a click before audio can play;
   after a reload, Start cycle unlocks enabled audio.
-- **Turn scanlines on/off** controls the optional cabinet texture.
+- **Scanline strength** adjusts the cabinet texture from 0 to 5. Zero turns it
+  off; five gives the strongest CRT bands. The setting survives a reload.
 - Reduced-motion preferences suppress scanlines and confetti and simplify death.
 
 Sound preferences, scanlines, and your best score are stored in this browser.

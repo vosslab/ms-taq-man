@@ -15,6 +15,8 @@ type HudValues = {
   primersLeft: number;
   extending: boolean;
   hotStart: number;
+  boosts: string;
+  rewardMessage: string;
 };
 export type GameSignals = { [Key in keyof HudValues]: Accessor<HudValues[Key]> } & {
   push: (game: Readonly<Game>) => void;
@@ -31,6 +33,8 @@ export function createGameSignals(initial: Readonly<Game>): GameSignals {
   const [primersLeft, setPrimersLeft] = createSignal(initial.primers.size);
   const [extending, setExtending] = createSignal(initial.player.primed);
   const [hotStart, setHotStart] = createSignal(0);
+  const [boosts, setBoosts] = createSignal("");
+  const [rewardMessage, setRewardMessage] = createSignal("");
 
   function push(game: Readonly<Game>): void {
     const thermal =
@@ -49,6 +53,18 @@ export function createGameSignals(initial: Readonly<Game>): GameSignals {
       setPrimersLeft(game.primers.size);
       setExtending(game.player.primed);
       setHotStart(Math.ceil(game.frightened));
+      setRewardMessage(game.rewards.messageTimer > 0 ? game.rewards.message : "");
+      setBoosts(
+        [
+          game.rewards.combo >= 8
+            ? `Synthesis x${Math.min(4, 1 + Math.floor(game.rewards.combo / 8))}`
+            : "",
+          game.rewards.speedTimer > 0 ? `Speed ${Math.ceil(game.rewards.speedTimer)}s` : "",
+          game.rewards.shieldTimer > 0 ? `DNA shield ${Math.ceil(game.rewards.shieldTimer)}s` : "",
+        ]
+          .filter(Boolean)
+          .join(" · "),
+      );
       setStatus(
         game.paused
           ? "Paused - Escape to resume"
@@ -72,6 +88,8 @@ export function createGameSignals(initial: Readonly<Game>): GameSignals {
     primersLeft,
     extending,
     hotStart,
+    boosts,
+    rewardMessage,
     push,
   };
 }

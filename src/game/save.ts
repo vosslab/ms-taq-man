@@ -4,10 +4,18 @@ export type Save = {
   muted: boolean;
   fxMuted: boolean;
   scanlines: boolean;
+  scanlineStrength: number;
 };
 export const saveKey = "ms_taq_man";
 export function defaultSave(): Save {
-  return { version: 2, highScore: 0, muted: true, fxMuted: true, scanlines: true };
+  return {
+    version: 2,
+    highScore: 0,
+    muted: true,
+    fxMuted: true,
+    scanlines: true,
+    scanlineStrength: 3,
+  };
 }
 export function decodeSave(raw: string | null): Save {
   if (!raw || raw.length > 4096) return defaultSave();
@@ -34,6 +42,14 @@ export function decodeSave(raw: string | null): Save {
     fxMuted: "fxMuted" in value && typeof value.fxMuted === "boolean" ? value.fxMuted : true,
     scanlines:
       "scanlines" in value && typeof value.scanlines === "boolean" ? value.scanlines : true,
+    scanlineStrength:
+      "scanlineStrength" in value &&
+      typeof value.scanlineStrength === "number" &&
+      Number.isInteger(value.scanlineStrength) &&
+      value.scanlineStrength >= 0 &&
+      value.scanlineStrength <= 5
+        ? value.scanlineStrength
+        : 3,
   };
 }
 export function readSave(storage: Pick<Storage, "getItem">): Save {

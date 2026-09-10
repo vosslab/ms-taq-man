@@ -82,11 +82,29 @@ test("music and FX controls remain independent after reload", async ({ page }) =
 test("dashboard focus does not disable keyboard movement", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("button", { name: "Start cycle" }).click();
-  const setting = page.getByRole("button", { name: /Turn scanlines/ });
+  const setting = page.getByRole("button", { name: "Turn FX on", exact: true });
   await setting.click();
-  await expect(setting).toBeFocused();
+  await expect(page.getByRole("button", { name: "Turn FX off", exact: true })).toBeFocused();
   await page.keyboard.press("ArrowLeft");
   await expect(page.getByLabel("Bases synthesized")).not.toHaveText("0");
   await page.keyboard.press("Escape");
   await expect(page.getByRole("button", { name: "Resume game" })).toBeVisible();
+});
+
+test("scanline strength saves endpoints and keyboard adjustment does not steer", async ({ page }) => {
+  await page.goto("/");
+  const strength = page.getByRole("slider", { name: "Scanline strength" });
+  await strength.focus();
+  await page.keyboard.press("Home");
+  await expect(strength).toHaveValue("0");
+  await expect(page.locator(".maze-screen")).not.toHaveClass(/scanlines/);
+  await page.reload();
+  await expect(strength).toHaveValue("0");
+  await strength.focus();
+  await page.keyboard.press("End");
+  await expect(strength).toHaveValue("5");
+  await expect(page.locator(".maze-screen")).toHaveClass(/scanlines/);
+  await page.reload();
+  await expect(strength).toHaveValue("5");
+  await expect(page.getByLabel("Bases synthesized")).toHaveText("0");
 });
