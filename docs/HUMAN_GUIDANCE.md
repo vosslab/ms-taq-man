@@ -12,10 +12,20 @@ origin belongs there too. Rules: [REPO_STYLE.md](REPO_STYLE.md).
 
 ## Review expectations
 
+- Covering 50% of the template OR collecting all primers advances the level.
+
+- Covering the entire screen with template is too hard; consider collecting all
+  primers or covering 50% of the play area as the cycle-clear condition.
+
 - Classify one-time rebuild checks separately from permanent pytest. Keep only deterministic,
   offline, quick behavior contracts; when in doubt, remove the test.
 
 ## Working style
+
+- Dream big. Build on the ambition already present; make the work more excellent,
+  durable, and complete through concrete next steps and dispatchable tasks.
+- Connect adjacent wall tiles into smooth boundaries. Make pickups resemble RNA primers,
+  trails resemble a helix, enemies have distinct shapes, and Taq resemble polymerase.
 
 - I want `tools/` for optional standalone user utilities that remain independent of repository-local
   packages, `devel/` for repository engineering, and the application for primary workflows and

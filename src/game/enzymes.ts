@@ -14,6 +14,7 @@ export type Enzyme = {
   actor: Actor;
   release: number;
   mode: "scatter" | "chase" | "frightened" | "eaten";
+  randomState: number;
 };
 export function targetTile(
   name: EnzymeName,
@@ -42,6 +43,7 @@ export function createEnzymes(maze: Maze): Enzyme[] {
     actor: createActor(maze.house),
     release: index * 3,
     mode: "scatter",
+    randomState: 1729 + index * 7919,
   }));
 }
 export function chooseDirection(
@@ -67,6 +69,16 @@ export function chooseDirection(
     }
   }
   return choice;
+}
+export function frightenedDirection(enzyme: Enzyme, maze: Maze): Direction {
+  const legal = directions.filter((direction) => neighbor(maze, enzyme.actor.position, direction));
+  const forward = legal.filter((direction) => direction !== opposite[enzyme.actor.direction]);
+  const choices = forward.length ? forward : legal;
+  enzyme.randomState = (Math.imul(enzyme.randomState, 1664525) + 1013904223) >>> 0;
+  return (
+    choices[Math.floor((enzyme.randomState / 4294967296) * choices.length)] ??
+    enzyme.actor.direction
+  );
 }
 export function advanceEnzymes(
   enzymes: Enzyme[],
@@ -115,14 +127,16 @@ export function advanceEnzymes(
       const transit = inHouse || mode === "eaten";
       enzyme.actor.queued = transit
         ? (routeDirection(maze, position, target) ?? enzyme.actor.direction)
-        : chooseDirection(enzyme.actor, maze, target, false);
+        : mode === "frightened"
+          ? frightenedDirection(enzyme, maze)
+          : chooseDirection(enzyme.actor, maze, target, false);
     }
     if (!enzyme.actor.destination) steer();
     moveActor(
       enzyme.actor,
       maze,
       seconds * (mode === "eaten" ? 8 : mode === "frightened" ? 2.8 : level.enemySpeed),
-      (from, to) => {
+      (from, to): void | false => {
         if (
           (enzyme.name === "exo" || (enzyme.name === "rnase" && level.chewers > 1)) &&
           (mode === "chase" || mode === "scatter")
@@ -131,6 +145,7 @@ export function advanceEnzymes(
         if (mode === "eaten" && to.x === maze.house.x && to.y === maze.house.y) {
           enzyme.mode = "scatter";
           enzyme.release = time + 2;
+          return false;
         }
         steer();
       },

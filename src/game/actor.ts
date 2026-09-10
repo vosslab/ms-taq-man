@@ -35,7 +35,7 @@ export function moveActor(
   actor: Actor,
   maze: Maze,
   distance: number,
-  arrived: (from: Tile, to: Tile) => void,
+  arrived: (from: Tile, to: Tile) => void | false,
   houseAccess = false,
 ): void {
   let budget = distance;
@@ -58,8 +58,9 @@ export function moveActor(
       if (
         actor.traversalStart.x !== actor.position.x ||
         actor.traversalStart.y !== actor.position.y
-      )
-        arrived(from, actor.position);
+      ) {
+        if (arrived(from, actor.position) === false) return;
+      }
     }
   }
 }

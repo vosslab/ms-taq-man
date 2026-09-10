@@ -25,6 +25,8 @@ export function createGame(): {
   frightened: number;
   chain: number;
   bonusScore: number;
+  extraLifeAwarded: boolean;
+  lastProgressTime: number;
   bonus: Bonus | undefined;
   bonusSpawns: number;
   cycle: number;
@@ -50,6 +52,8 @@ export function createGame(): {
     frightened: 0,
     chain: 0,
     bonusScore: 0,
+    extraLifeAwarded: false,
+    lastProgressTime: 0,
     bonus: undefined,
     bonusSpawns: 0,
     cycle: 1,
@@ -84,13 +88,14 @@ export function nextCycle(game: Game): void {
   game.frightened = 0;
   game.chain = 0;
   game.time = 0;
+  game.lastProgressTime = 0;
   game.waveTime = 0;
   game.phase = "ready";
   game.transitionTimer = 1;
 }
 export function recordEvent(game: Game, event: GameEvent): void {
   if (event.type === "direction") queueDirection(game.player.actor, event.direction);
-  else markEdge(game.coverage, event.edge);
+  else if (markEdge(game.coverage, event.edge)) game.lastProgressTime = game.time;
 }
 export function tick(game: Game, seconds: number): void {
   const level = levelForCycle(game.cycle);
@@ -116,6 +121,7 @@ export function tick(game: Game, seconds: number): void {
         game.primers = placePrimers(game.maze, level.primerCount);
       game.enzymes = createEnzymes(game.maze);
       game.time = 0;
+      game.lastProgressTime = 0;
       game.waveTime = 0;
       game.frightened = 0;
       game.chewQueue.clear();
@@ -125,11 +131,24 @@ export function tick(game: Game, seconds: number): void {
   }
   if (game.phase !== "playing" || game.paused) return;
   game.time += seconds;
+  if (
+    !game.extraLifeAwarded &&
+    game.completedBases + game.coverage.bases + game.bonusScore >= 10000
+  ) {
+    game.lives++;
+    game.extraLifeAwarded = true;
+  }
   if (game.frightened <= 0) game.waveTime += seconds;
   game.frightened = Math.max(0, game.frightened - seconds);
   advancePlayer(game.player, game.maze, game.primers, seconds * level.playerSpeed, (edge) =>
     recordEvent(game, { type: "extend", edge }),
   );
+  // Reaching either goal completes the player's turn before enemies can undo it.
+  if (game.coverage.covered.size * 2 >= game.maze.edges.size || game.primers.size === 0) {
+    game.phase = "cycle_complete";
+    game.transitionTimer = 2;
+    return;
+  }
   if (game.activators.delete(tileKey(game.player.actor.position))) {
     game.frightened = level.frightened;
     game.chain = 0;
@@ -178,13 +197,9 @@ export function tick(game: Game, seconds: number): void {
         continue;
       }
       game.lives--;
-      game.deathTimer = 1.5;
+      game.deathTimer = 2.8;
       game.phase = "dying";
       return;
     }
-  }
-  if (game.coverage.covered.size === game.maze.edges.size) {
-    game.phase = "cycle_complete";
-    game.transitionTimer = 2;
   }
 }

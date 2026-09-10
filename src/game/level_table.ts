@@ -46,16 +46,21 @@ export function levelForCycle(cycle: number): Level {
   return level;
 }
 export function placePrimers(maze: Maze, count: number): Set<string> {
+  if (!Number.isInteger(count) || count < 0)
+    throw new Error("Primer count must be a nonnegative integer");
+  const target = Math.min(count, maze.primers.length);
   const chosen = new Set<string>();
   const nearest = [...maze.primers].sort(
     (a, b) =>
       Math.hypot(a.x - maze.start.x, a.y - maze.start.y) -
       Math.hypot(b.x - maze.start.x, b.y - maze.start.y),
   );
-  // Keep a primer reachable immediately after each fresh life.
-  for (const position of nearest.slice(0, 4)) chosen.add(tileKey(position));
-  for (let index = 0; index < count && maze.primers.length; index++) {
-    const position = maze.primers[Math.floor((index * maze.primers.length) / count)];
+  // Reserve nearby pickups within the total budget, then spread the remainder.
+  for (const position of nearest.slice(0, Math.min(4, target))) chosen.add(tileKey(position));
+  const remaining = maze.primers.filter((position) => !chosen.has(tileKey(position)));
+  const needed = target - chosen.size;
+  for (let index = 0; index < needed; index++) {
+    const position = remaining[Math.floor((index * remaining.length) / needed)];
     if (position) chosen.add(tileKey(position));
   }
   return chosen;

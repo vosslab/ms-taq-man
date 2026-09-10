@@ -1,6 +1,30 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { createGame, tick } from "../src/game/game_state.ts";
+import { createGame, recordEvent, tick } from "../src/game/game_state.ts";
+import { parseMaze } from "../src/game/maze.ts";
+import { createPlayer } from "../src/game/player.ts";
+
+test("walking onto the last primer advances after an unprimed respawn", () => {
+  const game = createGame();
+  game.maze = parseMaze(["########", "#P.... #", "########"]);
+  game.player = createPlayer(game.maze);
+  game.primers = new Set(["2,1", "3,1"]);
+  game.enzymes = [];
+  game.activators.clear();
+  game.phase = "playing";
+  recordEvent(game, { type: "direction", direction: "right" });
+  tick(game, 1 / 5.5);
+  assert.equal(game.primers.size, 1);
+  game.phase = "dying";
+  game.deathTimer = 0.1;
+  tick(game, 0.1);
+  game.enzymes = [];
+  assert.equal(game.player.primed, false);
+  recordEvent(game, { type: "direction", direction: "right" });
+  tick(game, 2 / 5.5);
+  assert.equal(game.phase, "cycle_complete");
+  assert.equal(game.coverage.covered.size, 0);
+});
 
 test("completed template advances through thermal intermission to the next maze", () => {
   const game = createGame();
@@ -21,6 +45,51 @@ test("completed template advances through thermal intermission to the next maze"
 import { createActor } from "../src/game/actor.ts";
 import { edgeId, tileKey } from "../src/game/coords.ts";
 import { markEdge } from "../src/game/coverage.ts";
+
+test("half coverage clears the cycle while primers remain", () => {
+  const game = createGame();
+  game.phase = "playing";
+  game.enzymes = [];
+  const edges = [...game.maze.edges.keys()];
+  for (const edge of edges.slice(0, Math.ceil(edges.length / 2) - 1)) markEdge(game.coverage, edge);
+  tick(game, 0);
+  assert.equal(game.phase, "playing");
+  markEdge(game.coverage, edges[Math.ceil(edges.length / 2) - 1]);
+  tick(game, 0);
+  assert.equal(game.phase, "cycle_complete");
+  assert.ok(game.primers.size > 0);
+});
+test("collecting all primers clears even with no template coverage", () => {
+  const game = createGame();
+  game.phase = "playing";
+  game.enzymes = [];
+  game.primers.clear();
+  tick(game, 0);
+  assert.equal(game.phase, "cycle_complete");
+  assert.equal(game.coverage.covered.size, 0);
+});
+
+test("cycle completion wins over a simultaneous enemy collision", () => {
+  const game = createGame();
+  game.phase = "playing";
+  game.primers.clear();
+  game.enzymes[0].actor = createActor(game.player.actor.position);
+  const lives = game.lives;
+  tick(game, 0);
+  assert.equal(game.phase, "cycle_complete");
+  assert.equal(game.lives, lives);
+});
+
+test("extra life is awarded once when total score crosses its threshold", () => {
+  const game = createGame();
+  game.phase = "playing";
+  game.enzymes = [];
+  game.bonusScore = 10000;
+  const lives = game.lives;
+  tick(game, 0);
+  tick(game, 0);
+  assert.equal(game.lives, lives + 1);
+});
 
 test("hot start makes a collision edible and awards the first chain", () => {
   const game = createGame();

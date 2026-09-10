@@ -62,12 +62,14 @@ fi
 rm -rf dist
 mkdir -p dist
 
+node tools/build_svg_art.mjs
 npx tsc --noEmit -p tsconfig.json
 
 node pipeline/build.mjs "$ENTRY"
 
 cp src/index.html dist/index.html
 cp src/style.css dist/style.css
+node pipeline/cache_assets.mjs
 touch dist/.nojekyll
 
 test -f dist/index.html

@@ -1,6 +1,46 @@
 import { expect, test } from "@playwright/test";
 
 // Selector contract: src/ui/app.tsx exposes the title and named canvas.
+test("music is opt-in and remembers the setting after reload", async ({ page }) => {
+  await page.addInitScript(() => {
+    // Preserve the native method; the probe calls it with the original context receiver.
+    // eslint-disable-next-line @typescript-eslint/unbound-method
+    const createGain = AudioContext.prototype.createGain;
+    AudioContext.prototype.createGain = function (): GainNode {
+      const gain = createGain.call(this);
+      if (!document.documentElement.dataset.audioProbe) {
+        document.documentElement.dataset.audioProbe = "yes";
+        const analyser = this.createAnalyser();
+        gain.connect(analyser);
+        const samples = new Float32Array(analyser.fftSize);
+        function measure(): void {
+          analyser.getFloatTimeDomainData(samples);
+          const peak = Math.max(...samples.map(Math.abs));
+          if (peak > 0.005) document.documentElement.dataset.audioDetected = "yes";
+          else requestAnimationFrame(measure);
+        }
+        requestAnimationFrame(measure);
+      }
+      return gain;
+    };
+  });
+  const errors: string[] = [];
+  page.on("pageerror", (error) => errors.push(error.message));
+  await page.goto("/");
+  await page.getByRole("button", { name: "Music off", exact: true }).click();
+  await expect(page.getByRole("button", { name: "Music on", exact: true })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await expect(page.locator("html")).toHaveAttribute("data-audio-detected", "yes");
+  await page.reload();
+  await expect(page.getByRole("button", { name: "Music on", exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Start cycle" }).click();
+  await expect(page.getByLabel("Bases synthesized")).not.toHaveText("0");
+  await page.getByRole("button", { name: "Music on", exact: true }).click();
+  await expect(page.getByRole("button", { name: "Music off", exact: true })).toBeVisible();
+  expect(errors).toEqual([]);
+});
 test("cabinet boots with a responsive canvas", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "Ms Taq Man" })).toBeVisible();
