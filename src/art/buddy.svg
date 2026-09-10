@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+<title>Sliding clamp protein helper</title>
+<g stroke="#22675b" stroke-width="2.5" stroke-linejoin="round">
+<path fill="#74efbd" d="M31 4L45 7L56 19L60 32L48 33L43 22L32 17L21 22L15 32L4 31L8 18L19 7Z"/>
+<path fill="#b8f6e2" d="M4 33L15 33L21 43L32 48L43 43L48 34L60 34L55 47L44 57L31 61L18 56L7 45Z"/>
+</g>
+<g fill="none" stroke="#ecfff8" stroke-width="3" stroke-linecap="round"><path d="M12 23L22 13L29 11M37 53L48 46L52 39"/></g>
+<g fill="#173347"><circle cx="24" cy="12" r="2"/><circle cx="40" cy="12" r="2"/></g>
+</svg>

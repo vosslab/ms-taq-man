@@ -27,7 +27,8 @@ separate: difficulty scales live enemy speed, while eaten eyes retain return spe
 
 [arcade_rewards.ts](../src/game/arcade_rewards.ts) owns combo and boost timers.
 Reagent pickup effects are applied by game_state. The central event funnel
-currently handles direction and extension; other reward events remain in tick.
+handles direction, player and buddy extension, bonus points, and enzyme captures.
+Extra-life checks run immediately after scoring events.
 
 ## Browser lifecycle
 
@@ -58,7 +59,8 @@ stay in the dashboard. Reduced-motion preferences simplify these effects.
 
 Editable SVG sources live in `src/art`. The build generates TypeScript markup
 with [build_svg_art.mjs](../tools/build_svg_art.mjs). The current atlas loads
-HTML images; the planned DPR ImageBitmap atlas remains unfinished.
+DPR-scaled ImageBitmaps, including directional enemy variants. Resizing replaces
+bitmaps; renderer disposal closes them.
 
 Music and FX use independent Web Audio contexts and persisted mute controls.
 The soundtrack schedules short look-ahead phrases; drums synthesize noise and

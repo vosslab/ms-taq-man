@@ -1,5 +1,14 @@
 # Human guidance
 
+- Default template coverage to advance is 60%; difficulty raises or lowers it.
+  Collecting every primer remains an alternate cycle-clear condition.
+
+- The buddy should appear as a pickup and have a molecular theme, such as a
+  DNA sliding clamp or another protein that makes Taq more efficient.
+
+- Keep the wild, fun features, and add automatic help to make the game easier:
+  a buddy or pet can distract enemies, repair DNA, or build template.
+
 <!-- VENDORED HEADER: START -->
 Record the durable guidance Neil Voss states, or approves for preservation here, in his own words:
 first person or close paraphrase, one to three lines per bullet. Material he supplies as a source

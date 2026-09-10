@@ -1,3 +1,4 @@
+import { createBuddy, advanceBuddy } from "./buddy";
 import { actorLocation, queueDirection } from "./actor";
 import { advanceEnzymes, createEnzymes } from "./enzymes";
 import { tileKey } from "./coords";
@@ -10,12 +11,18 @@ import { levelForCycle, placePrimers } from "./level_table";
 import { advanceBonus, createBonus } from "./bonus";
 import type { Bonus } from "./bonus";
 import { waveMode } from "./waves";
-import { enemySpeedMultiplier } from "./difficulty";
+import { enemySpeedMultiplier, coverageTarget } from "./difficulty";
 import { createRewards, advanceRewards, synthesisReward, announce } from "./arcade_rewards";
 
 export type GameEvent =
-  { type: "extend"; edge: EdgeId } | { type: "direction"; direction: Direction };
+  | { type: "extend"; edge: EdgeId }
+  | { type: "buddy_extend"; edge: EdgeId }
+  | { type: "direction"; direction: Direction }
+  | { type: "bonus"; points: number }
+  | { type: "capture_enzyme" };
 export function createGame(): {
+  buddy: ReturnType<typeof createBuddy>;
+  collectedReagents: string[];
   difficulty: number;
   rewards: ReturnType<typeof createRewards>;
   maze: ReturnType<typeof firstMaze>;
@@ -45,6 +52,8 @@ export function createGame(): {
 } {
   const maze = firstMaze();
   return {
+    buddy: createBuddy(maze),
+    collectedReagents: [],
     difficulty: 2,
     rewards: createRewards(),
     maze,
@@ -88,6 +97,7 @@ export function nextCycle(game: Game): void {
   game.maze = mazeForCycle(game.cycle);
   game.coverage = createCoverage();
   game.player = createPlayer(game.maze);
+  game.buddy = createBuddy(game.maze);
   game.enzymes = createEnzymes(game.maze);
   game.primers = placePrimers(game.maze, levelForCycle(game.cycle).primerCount);
   game.activators = new Set(game.maze.activators.map(tileKey));
@@ -102,9 +112,25 @@ export function nextCycle(game: Game): void {
 }
 export function recordEvent(game: Game, event: GameEvent): void {
   if (event.type === "direction") queueDirection(game.player.actor, event.direction);
-  else if (markEdge(game.coverage, event.edge)) {
+  else if (event.type === "bonus") game.bonusScore += event.points;
+  else if (event.type === "capture_enzyme") {
+    const points = enzymePoints(game.chain++);
+    announce(game.rewards, `TAQ ATTACK! +${points}`);
+    game.bonusScore += points;
+  } else if (markEdge(game.coverage, event.edge)) {
     game.lastProgressTime = game.time;
-    game.bonusScore += synthesisReward(game.rewards);
+    if (event.type === "extend") game.bonusScore += synthesisReward(game.rewards);
+  }
+  if (event.type !== "direction") awardExtraLife(game);
+}
+function awardExtraLife(game: Game): void {
+  if (
+    !game.extraLifeAwarded &&
+    game.completedBases + game.coverage.bases + game.bonusScore >= 10000
+  ) {
+    game.lives++;
+    game.extraLifeAwarded = true;
+    announce(game.rewards, "EXTRA POLYMERASE! +1 LIFE");
   }
 }
 export function tick(game: Game, seconds: number): void {
@@ -142,13 +168,7 @@ export function tick(game: Game, seconds: number): void {
   if (game.phase !== "playing" || game.paused) return;
   game.time += seconds;
   advanceRewards(game.rewards, seconds);
-  if (
-    !game.extraLifeAwarded &&
-    game.completedBases + game.coverage.bases + game.bonusScore >= 10000
-  ) {
-    game.lives++;
-    game.extraLifeAwarded = true;
-  }
+  awardExtraLife(game);
   if (game.frightened <= 0) game.waveTime += seconds;
   game.frightened = Math.max(0, game.frightened - seconds);
   advancePlayer(
@@ -158,8 +178,24 @@ export function tick(game: Game, seconds: number): void {
     seconds * level.playerSpeed * (game.rewards.speedTimer > 0 ? 1.2 : 1),
     (edge) => recordEvent(game, { type: "extend", edge }),
   );
+  if (!game.buddy.active && game.time >= 5) {
+    const playerPosition = actorLocation(game.player.actor, game.maze);
+    const pickup = actorLocation(game.buddy.actor, game.maze);
+    const dx = Math.abs(playerPosition.x - pickup.x);
+    if (Math.hypot(Math.min(dx, game.maze.width - dx), playerPosition.y - pickup.y) < 0.7) {
+      game.buddy.active = true;
+      announce(game.rewards, "CLAMP LOADED! Helper recruited");
+    }
+  }
+  advanceBuddy(game.buddy, game.maze, game.player.actor, seconds, (edge) => {
+    game.chewQueue.delete(edge);
+    recordEvent(game, { type: "buddy_extend", edge });
+  });
   // Reaching either goal completes the player's turn before enemies can undo it.
-  if (game.coverage.covered.size * 2 >= game.maze.edges.size || game.primers.size === 0) {
+  if (
+    game.coverage.covered.size * 100 >= game.maze.edges.size * coverageTarget(game.difficulty) ||
+    game.primers.size === 0
+  ) {
     game.phase = "cycle_complete";
     game.transitionTimer = 2;
     return;
@@ -187,6 +223,13 @@ export function tick(game: Game, seconds: number): void {
     level,
     waveMode(game.waveTime, game.cycle),
     enemySpeedMultiplier(game.difficulty),
+    game.buddy.distraction > 0 &&
+      Math.hypot(
+        game.buddy.actor.position.x - game.player.actor.position.x,
+        game.buddy.actor.position.y - game.player.actor.position.y,
+      ) > 4
+      ? game.buddy.actor.position
+      : undefined,
   );
   for (const [edge, due] of game.chewQueue) {
     if (due <= game.time) {
@@ -202,11 +245,13 @@ export function tick(game: Game, seconds: number): void {
   if (game.bonus) {
     advanceBonus(game.bonus, game.maze, seconds);
     const reagent = actorLocation(game.bonus.actor, game.maze);
-    if (Math.hypot(player.x - reagent.x, player.y - reagent.y) < 0.7) {
+    const reagentDx = Math.abs(player.x - reagent.x);
+    if (Math.hypot(Math.min(reagentDx, game.maze.width - reagentDx), player.y - reagent.y) < 0.7) {
       const name = game.bonus.name;
+      game.collectedReagents = [...game.collectedReagents.slice(-6), name];
       announce(game.rewards, `${name.toUpperCase()} BOOST!`);
       if (name === "Mg2+") game.frightened = Math.max(game.frightened, 4);
-      if (name === "dNTP mix") game.bonusScore += 500;
+      if (name === "dNTP mix") recordEvent(game, { type: "bonus", points: 500 });
       if (name === "BSA") {
         game.rewards.shieldTimer = 10;
         game.chewQueue.clear();
@@ -222,7 +267,7 @@ export function tick(game: Game, seconds: number): void {
         game.rewards.shieldTimer = 5;
         game.chewQueue.clear();
       }
-      game.bonusScore += game.bonus.points;
+      recordEvent(game, { type: "bonus", points: game.bonus.points });
       game.bonus = undefined;
     } else if (game.bonus.finished) game.bonus = undefined;
   }
@@ -232,9 +277,14 @@ export function tick(game: Game, seconds: number): void {
     if (Math.hypot(Math.min(dx, game.maze.width - dx), player.y - enemy.y) < 0.65) {
       if (enzyme.mode === "eaten") continue;
       if (enzyme.mode === "frightened" || game.frightened > 0) {
-        announce(game.rewards, `TAQ ATTACK! +${enzymePoints(game.chain)}`);
-        game.bonusScore += enzymePoints(game.chain++);
+        recordEvent(game, { type: "capture_enzyme" });
         enzyme.mode = "eaten";
+        continue;
+      }
+      if (game.buddy.active && game.buddy.rescueTimer <= 0) {
+        game.buddy.rescueTimer = 20;
+        game.frightened = Math.max(game.frightened, 3);
+        announce(game.rewards, "CLAMP RESCUE! 3s protection");
         continue;
       }
       game.lives--;

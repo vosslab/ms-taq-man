@@ -65,7 +65,10 @@ export function moveActor(
     }
   }
 }
-export function actorLocation(actor: Actor, maze: Maze): { x: number; y: number } {
+export function actorLocation(
+  actor: Readonly<Actor>,
+  maze: Pick<Maze, "width">,
+): { x: number; y: number } {
   const delta = vectors[actor.direction];
   return {
     x: wrap(actor.position.x + delta.x * actor.progress + 0.5, maze.width),

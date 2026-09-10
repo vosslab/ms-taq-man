@@ -1,6 +1,6 @@
 # Arcade acceptance ledger
 
-Status as of 2026-09-09. Authority: the root
+Status as of 2026-09-09. Authority:
 [splendid-gathering-tulip.md](../splendid-gathering-tulip.md) and the
 [arcade_completion.md](../active/arcade_completion.md) companion.
 This is an open ledger, not a completion certificate.
@@ -9,45 +9,50 @@ This is an open ledger, not a completion certificate.
 
 | Requirement | Evidence | Status and remaining acceptance |
 | --- | --- | --- |
-| Four connected rotating mazes, edge graph, tunnels | Maze tests, four layout sources | Implemented; full playthrough of each remains |
+| Four connected rotating mazes, edge graph, tunnels | Maze tests, four layout sources | All four clear through simulation traversal at Chill and Easy; browser playthrough remains |
 | Primer pickup, full-edge extension, no duplicate score | Player and coverage tests | Verified in focused tests |
 | Buffered turns, reversals, wall recovery | Player tests; keyboard-focus browser regression | Verified in focused tests; late-turn feel remains unmeasured |
-| 50% template OR all primers clears cycle | Game-state tests and HUD wording | Verified transitions; actual traversal clear remains |
-| Four targeting personalities, frightened choices, waves | Targeting and wave tests | Implemented; tunnel speed tuning and mode-transition parity need review |
+| 50% template OR all primers clears cycle | Game-state tests and HUD wording | Both goals exercised through movement; continuous Easy run reaches cycle 5 |
+| Four targeting personalities, frightened choices, waves | Targeting and wave tests | Tunnel slowdown implemented and tested; mode-transition parity needs review |
 | House return and timed release | Lifecycle tests across all four mazes | Verified focused lifecycle |
-| Nuclease chew-back | Game-state delay test, strand seed tracking | Implemented; visible fade missing |
-| Extra life, chain rewards, copy count, saves | Score, game-state, save tests | Implemented; all rewards still need central event funnel |
-| Moving reagents and exits | Every-corridor exit tests across four mazes | Routing verified; distinct art and reagent tray missing |
-| Death and thermal transitions | Simulation tests, procedural animation, overlays | Implemented; death visual acceptance remains |
-| Fixed timestep, Solid snapshot bridge, HUD, overlays | game_loop, game_signals, hud, overlays modules | Implemented; render snapshot is shallow read-only |
-| Cached maze and persistent strands | maze_painter, strand_layer | Implemented; full-nest performance and dirty-region correctness need rendered checks |
-| DPR ImageBitmap atlas | sprite_atlas uses HTMLImageElement | Incomplete |
+| Nuclease chew-back | Game-state delay test, strand seed tracking | 0.6s fade implemented; Chromium fade and repair comparison passed |
+| Extra life, chain rewards, copy count, saves | Score, game-state, save tests | Direction, extension, buddy extension, bonuses, and captures use recordEvent; extra-life threshold centralized |
+| Moving reagents and exits | Every-corridor exit tests across four mazes | Routing and whole-board tours verified; seven sprites and collected-reagent tray integrated |
+| Death and thermal transitions | Simulation tests, procedural animation, overlays | Implemented; full-board death screenshot inspected; motion acceptance remains |
+| Fixed timestep, Solid snapshot bridge, HUD, overlays | game_loop, game_signals, hud, overlays modules | Recursively read-only live view; frozen snapshot remains a distinct unresolved requirement |
+| Cached maze and persistent strands | maze_painter, strand_layer | Dirty-region repaired alpha within 4/255 of fresh Chromium render; full-nest performance remains |
+| DPR ImageBitmap atlas | SVG decode, DPR rasterization, bitmap replacement and disposal | Chromium verified all 17 sprites, doubled dimensions at 2x, and closed resources |
+
+Simulation traversal evidence and command are recorded in
+[traversal_baseline.md](traversal_baseline.md). The continuous run includes
+celebrations, thermal transitions, retained bases, and an earned extra life.
 
 ## Art and interaction
 
 | Artifact or requirement | Current evidence | Remaining work |
 | --- | --- | --- |
-| taq_man.svg | Polymerase silhouette and bow | Mouth groups and animation |
-| exo.svg, dimer.svg, chelate.svg, rnase.svg | Distinct silhouettes | Eye-direction groups and 16px/256px review |
-| primer.svg | RNA-like strand | Pulse and size review |
+| taq_man.svg | Polymerase silhouette and bow | Open/closed thumb sprites animate movement; reduced motion stays open |
+| exo.svg, dimer.svg, chelate.svg, rnase.svg | Distinct silhouettes | Directional eye groups and personality animations implemented; atlas and motion frames inspected |
+| primer.svg | RNA-like strand and staggered pulse | In-game pulse review remains |
 | taq_denature.svg | Procedural death equivalent in animation.ts | Evaluate equivalent and document acceptance |
-| frightened.svg, eaten_eyes.svg, hot_start.svg | Filters and primitive placeholders | Author and integrate |
-| strand_ribbon.svg | Procedural double helix | Evaluate equivalent; fade, organic junctions, full-nest evidence |
-| Seven reagent SVGs | Only reagent_magnesium.svg exists | Author other six and select by bonus |
-| logo_ms_taq_man.svg, helix_backdrop.svg | Text header only | Author and integrate |
-| Muted-default music, independent FX | Five browser smoke tests include persistence and music waveform | FX event waveform and attended listening remain |
-| Scanlines, reduced motion | Saved toggle; reduced-motion CSS and animations | Browser preference acceptance remains |
-| Light/dark palette and shared canvas tokens | Dark tokens; several hardcoded canvas colors | Incomplete |
-| Responsive 16:10 cabinet and touch/keyboard parity | Desktop and 400px screenshots; focus regression | Latest full sidebar visual review remains |
+| frightened.svg, eaten_eyes.svg, hot_start.svg | Authored, integrated, inspected at 16px and 256px | In-game state-transition acceptance remains |
+| strand_ribbon.svg | Procedural double helix | Fade implemented; evaluate procedural equivalent, organic junctions, and full-nest evidence |
+| Seven reagent SVGs | All seven authored, integrated by bonus name, inspected at 16px and 256px | Actual collection visual acceptance remains |
+| logo_ms_taq_man.svg, helix_backdrop.svg | Editable SVG wordmark and attract backdrop integrated | Atlas decoding and rendered inspection passed |
+| Muted-default music, independent FX | Six browser smoke tests include persistence and music waveform | FX event waveform and attended listening remain |
+| Scanlines, reduced motion | Saved 0-5 slider; endpoint reload browser tests; reduced-motion CSS and animations | Browser preference acceptance remains |
+| Light/dark palette and shared canvas tokens | System light/dark cabinet; backbone and strand colors read from CSS | Remaining sprite/effect palette tokens need review |
+| Responsive 16:10 cabinet and touch/keyboard parity | Desktop and 400px screenshots; focus regression | Current desktop cabinet captured and inspected; latest mobile review remains |
 | Victory celebration | Chromium cycle_celebration.png inspected | Actual traversal-triggered celebration and motion review remain |
 
 ## Release gates
 
-- Latest codebase gate: 32 unit tests, TypeScript, lint, and formatting pass.
-- Latest browser suite: five smoke tests pass; these do not clear a full cycle.
+- Latest codebase gate: 47 unit tests, TypeScript, lint, and formatting pass.
+- Latest browser suite: six smoke tests and one art atlas test pass; these do not clear a full cycle.
 - Production build passes and emits dist with cache-versioned assets.
-- Art atlas render test is missing.
-- Python hygiene suite and attended local play gate remain unverified.
+- Art atlas test decodes authored SVGs and captures 16px/256px renders.
+- Python hygiene: 1,035 checks passed. Local launcher was run successfully for README capture.
+- Attended full-run play acceptance remains unverified.
 - Required README, usage, architecture, file structure, and decisions need final review.
 - Full-run evidence must include each maze, a death/repriming run, visible chew-back,
   re-extension, bonus collection, keyboard-only play, and a completed nest.
@@ -56,7 +61,7 @@ This is an open ledger, not a completion certificate.
 
 ## Next implementation sequence
 
-1. Complete and render the missing sprite set and wire bonus-specific artwork.
-2. Add chew-back fade and verify dirty regions and re-extension in Chromium.
-3. Complete palette/settings and event-funnel gaps.
-4. Run actual traversal acceptance on every maze, then finish documentation and gates.
+1. Complete remaining logo/backdrop artwork and resolve procedural-art equivalents.
+2. Verify full-nest rendering, organic junctions, and frame timing.
+3. Complete light/dark palette and shared canvas tokens.
+4. Run browser traversal and remaining visual gates, then finalize documentation and review.

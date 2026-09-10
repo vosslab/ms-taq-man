@@ -6,6 +6,14 @@ export function createSoundEffects(): {
   dispose: () => void;
 } {
   let context: AudioContext | undefined;
+  const voices = new Set<OscillatorNode>();
+  function silence(): void {
+    for (const oscillator of voices) {
+      oscillator.stop();
+      oscillator.disconnect();
+    }
+    voices.clear();
+  }
   let previousPhase: Game["phase"] = "attract";
   let primers = 0;
   let reward = 0;
@@ -24,9 +32,11 @@ export function createSoundEffects(): {
       gain.gain.exponentialRampToValueAtTime(0.0001, when + 0.16);
       oscillator.connect(gain);
       gain.connect(audio.destination);
+      voices.add(oscillator);
       oscillator.start(when);
       oscillator.stop(when + 0.17);
       oscillator.onended = (): void => {
+        voices.delete(oscillator);
         oscillator.disconnect();
         gain.disconnect();
       };
@@ -39,7 +49,8 @@ export function createSoundEffects(): {
       tone([72, 79]);
     },
     update(game, enabled): void {
-      if (enabled && !game.paused) {
+      if (!enabled || game.paused) silence();
+      else {
         if (game.phase !== previousPhase && game.phase === "dying") tone([72, 67, 60, 48]);
         else if (game.phase !== previousPhase && game.phase === "cycle_complete")
           tone([72, 76, 79, 84]);
@@ -53,6 +64,7 @@ export function createSoundEffects(): {
       protection = game.frightened;
     },
     dispose(): void {
+      silence();
       if (context) void context.close();
     },
   };

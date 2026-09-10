@@ -1,3 +1,4 @@
+import { coverageTarget } from "../game/difficulty";
 import { batch, createSignal } from "solid-js";
 import type { Accessor } from "solid-js";
 import type { Game } from "../game/game_state";
@@ -13,12 +14,14 @@ type HudValues = {
   status: string;
   score: number;
   coverage: number;
+  coverageGoal: number;
   primersLeft: number;
   extending: boolean;
   hotStart: number;
   boosts: string;
   rewardMessage: string;
   reagent: string;
+  collectedReagents: readonly string[];
 };
 export type GameSignals = { [Key in keyof HudValues]: Accessor<HudValues[Key]> } & {
   push: (game: Readonly<Game>) => void;
@@ -31,6 +34,7 @@ export function createGameSignals(initial: Readonly<Game>): GameSignals {
   const [bases, setBases] = createSignal(0);
   const [status, setStatus] = createSignal("");
   const [score, setScore] = createSignal(0);
+  const [coverageGoal, setCoverageGoal] = createSignal(coverageTarget(initial.difficulty));
   const [coverage, setCoverage] = createSignal(0);
   const [primersLeft, setPrimersLeft] = createSignal(initial.primers.size);
   const [extending, setExtending] = createSignal(initial.player.primed);
@@ -38,6 +42,7 @@ export function createGameSignals(initial: Readonly<Game>): GameSignals {
   const [boosts, setBoosts] = createSignal("");
   const [rewardMessage, setRewardMessage] = createSignal("");
   const [reagent, setReagent] = createSignal("");
+  const [collectedReagents, setCollectedReagents] = createSignal<readonly string[]>([]);
 
   function push(game: Readonly<Game>): void {
     const thermal =
@@ -52,14 +57,23 @@ export function createGameSignals(initial: Readonly<Game>): GameSignals {
       setTransitionTimer(game.transitionTimer);
       setBases(game.completedBases + game.coverage.bases);
       setScore(game.completedBases + game.coverage.bases + game.bonusScore);
+      setCoverageGoal(coverageTarget(game.difficulty));
       setCoverage(coveragePercent(game.coverage, game.maze.edges.size));
       setPrimersLeft(game.primers.size);
       setExtending(game.player.primed);
       setHotStart(Math.ceil(game.frightened));
+      setCollectedReagents(game.collectedReagents);
       setReagent(game.bonus ? `${game.bonus.name}: ${reagentDescription(game.bonus.name)}` : "");
       setRewardMessage(game.rewards.messageTimer > 0 ? game.rewards.message : "");
       setBoosts(
         [
+          !game.buddy.active
+            ? game.time < 5
+              ? "Sliding clamp arriving soon"
+              : "Collect the mint protein ring to recruit your helper"
+            : game.buddy.rescueTimer > 0
+              ? `Clamp rescue recharges in ${Math.ceil(game.buddy.rescueTimer)}s`
+              : "Clamp rescue ready",
           game.rewards.combo >= 8
             ? `Synthesis x${Math.min(4, 1 + Math.floor(game.rewards.combo / 8))}`
             : "",
@@ -89,12 +103,14 @@ export function createGameSignals(initial: Readonly<Game>): GameSignals {
     status,
     score,
     coverage,
+    coverageGoal,
     primersLeft,
     extending,
     hotStart,
     boosts,
     rewardMessage,
     reagent,
+    collectedReagents,
     push,
   };
 }

@@ -1,3 +1,4 @@
+import { sprites } from "../art/sprites_generated";
 import { createRenderer } from "../render/canvas_renderer";
 import { createSignal, onCleanup, onMount } from "solid-js";
 import type { JSX } from "solid-js";
@@ -183,7 +184,15 @@ export function App(): JSX.Element {
     <main class="cabinet">
       <header>
         <p class="eyebrow">THE POLYMERASE CHASE</p>
-        <h1>Ms Taq Man</h1>
+        <h1>
+          <img
+            class="game-logo"
+            alt="Ms Taq Man"
+            width="600"
+            height="100"
+            src={`data:image/svg+xml,${encodeURIComponent(sprites.logo_ms_taq_man)}`}
+          />
+        </h1>
       </header>
       <div class="game-stage">
         <div
@@ -265,7 +274,7 @@ export function App(): JSX.Element {
                 rememberDifficulty(value);
               }}
             />
-            Slower enemies at 1; faster enemies at 5. Change anytime.
+            Lower settings slow enemies and reduce required coverage. Change anytime.
           </label>
           <Hud signals={hud} highScore={highScore()} />
           <TouchControls

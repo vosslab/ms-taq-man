@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 504 504">
+<title>DNA helix backdrop</title>
+<g transform="translate(252 252) rotate(-25) translate(-252 -252)" fill="none" stroke-width="9" opacity=".18">
+<path stroke="#74efbd" d="M140 -60C400 20 100 100 360 180S100 340 360 420S100 580 360 660"/>
+<path stroke="#50cff7" d="M360 -60C100 20 400 100 140 180S400 340 140 420S400 580 140 660"/>
+<path stroke="#bddbb7" stroke-width="4" d="M210 0H290M220 40H280M175 80H325M190 120H310M230 160H270M170 200H330M220 240H280M220 280H280M170 320H330M190 360H310M230 400H270M175 440H325M210 480H290"/>
+</g></svg>

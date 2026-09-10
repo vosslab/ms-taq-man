@@ -4,11 +4,8 @@
     <ellipse cx="21" cy="32" rx="12" ry="16"/>
     <ellipse cx="45" cy="32" rx="12" ry="16"/>
   </g>
-  <g id="return_pupils" fill="#246eb9">
-    <ellipse cx="25" cy="32" rx="5" ry="8"/>
-    <ellipse cx="49" cy="32" rx="5" ry="8"/>
-  </g>
-  <g id="return_eye_highlights" fill="#ffffff">
-    <circle cx="26" cy="29" r="2"/><circle cx="50" cy="29" r="2"/>
+  <g id="direction_pupils" fill="#246eb9">
+    <ellipse cx="21" cy="32" rx="5" ry="8"/>
+    <ellipse cx="45" cy="32" rx="5" ry="8"/>
   </g>
 </svg>

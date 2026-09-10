@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 100">
+<title>Ms Taq Man</title>
+<g fill="none" stroke-width="4" opacity=".65">
+<path stroke="#74efbd" d="M10 64Q55 12 100 64T190 64T280 64T370 64T460 64T550 64L590 40"/>
+<path stroke="#50cff7" d="M10 36Q55 88 100 36T190 36T280 36T370 36T460 36T550 36L590 60"/>
+</g>
+<text x="300" y="68" text-anchor="middle" font-family="Arial Rounded MT Bold,Arial,sans-serif" font-size="64" font-weight="900" letter-spacing="2" fill="#ffdc70" stroke="#09111f" stroke-width="7" paint-order="stroke">MS TAQ MAN</text>
+</svg>

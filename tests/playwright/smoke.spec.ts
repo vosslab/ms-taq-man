@@ -110,3 +110,21 @@ test("scanline strength saves endpoints and keyboard adjustment does not steer",
   await expect(strength).toHaveValue("5");
   await expect(page.getByLabel("Bases synthesized")).toHaveText("0");
 });
+
+test("difficulty updates the coverage target and persists after reload", async ({ page }) => {
+  await page.goto("/");
+  const target = page.getByRole("progressbar", { name: "Template synthesized", exact: true });
+  const difficulty = page.getByRole("slider", { name: "Difficulty", exact: true });
+  await expect(target).toHaveAttribute("max", "60");
+  await difficulty.focus();
+  await page.keyboard.press("End");
+  await expect(target).toHaveAttribute("max", "90");
+  await expect(
+    page.getByText("Clear the cycle: synthesize 90% OR collect every primer."),
+  ).toBeVisible();
+  await page.reload();
+  await expect(target).toHaveAttribute("max", "90");
+  await difficulty.focus();
+  await page.keyboard.press("Home");
+  await expect(target).toHaveAttribute("max", "50");
+});

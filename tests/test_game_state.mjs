@@ -6,6 +6,16 @@ import { createPlayer } from "../src/game/player.ts";
 import { createBonus } from "../src/game/bonus.ts";
 import { createActor } from "../src/game/actor.ts";
 
+test("score events grant an extra life immediately and only once", () => {
+  const game = createGame();
+  game.bonusScore = 9900;
+  recordEvent(game, { type: "bonus", points: 100 });
+  assert.equal(game.lives, 4);
+  assert.equal(game.rewards.message, "EXTRA POLYMERASE! +1 LIFE");
+  recordEvent(game, { type: "capture_enzyme" });
+  assert.equal(game.lives, 4);
+});
+
 test("protection reagents protect on the pickup frame before an enemy collision", () => {
   for (const name of ["Mg2+", "hot-start antibody"]) {
     const game = createGame();
@@ -66,15 +76,16 @@ test("completed template advances through thermal intermission to the next maze"
 import { edgeId, tileKey } from "../src/game/coords.ts";
 import { markEdge } from "../src/game/coverage.ts";
 
-test("half coverage clears the cycle while primers remain", () => {
+test("default 60 percent coverage clears the cycle while primers remain", () => {
   const game = createGame();
   game.phase = "playing";
   game.enzymes = [];
   const edges = [...game.maze.edges.keys()];
-  for (const edge of edges.slice(0, Math.ceil(edges.length / 2) - 1)) markEdge(game.coverage, edge);
+  for (const edge of edges.slice(0, Math.ceil(edges.length * 0.6) - 1))
+    markEdge(game.coverage, edge);
   tick(game, 0);
   assert.equal(game.phase, "playing");
-  markEdge(game.coverage, edges[Math.ceil(edges.length / 2) - 1]);
+  markEdge(game.coverage, edges[Math.ceil(edges.length * 0.6) - 1]);
   tick(game, 0);
   assert.equal(game.phase, "cycle_complete");
   assert.ok(game.primers.size > 0);
@@ -161,4 +172,97 @@ test("each reagent grants its helpful power on collection", () => {
       assert.equal(game.rewards.comboTimer, 10);
     }
   }
+});
+
+test("reagents can be collected across the tunnel wrap", () => {
+  const game = createGame();
+  game.phase = "playing";
+  game.enzymes = [];
+  const left = game.maze.corridors.find((position) => position.x === 0);
+  const right = game.maze.corridors.find((position) => position.x === game.maze.width - 1);
+  game.player.actor = createActor(left);
+  game.player.actor.direction = "left";
+  game.player.actor.queued = "left";
+  game.player.actor.destination = right;
+  game.player.actor.progress = 0.4;
+  game.bonus = createBonus(game.maze, 1);
+  game.bonus.actor = createActor(right);
+  game.bonus.actor.direction = "right";
+  game.bonus.actor.destination = left;
+  game.bonus.actor.progress = 0.4;
+  tick(game, 0);
+  assert.equal(game.bonus, undefined);
+  assert.equal(game.bonusScore, 100);
+  assert.deepEqual(game.collectedReagents, ["Mg2+"]);
+});
+
+test("Recruited clamp rescues a collision, then needs time to recharge", () => {
+  const game = createGame();
+  game.buddy.active = true;
+  game.phase = "playing";
+  game.enzymes[0].actor = { ...game.player.actor };
+  tick(game, 0);
+  assert.equal(game.lives, 3);
+  assert.ok(game.frightened > 0 && game.buddy.rescueTimer > 0);
+  game.frightened = 0;
+  game.enzymes[0].mode = "chase";
+  tick(game, 0);
+  assert.equal(game.phase, "dying");
+});
+
+test("Recruited clamp builds template without changing the primer goal or player combo", () => {
+  const game = createGame();
+  const edge = game.maze.edges.keys().next().value;
+  const primers = game.primers.size;
+  recordEvent(game, { type: "buddy_extend", edge });
+  assert.ok(game.coverage.covered.has(edge));
+  assert.equal(game.primers.size, primers);
+  assert.equal(game.rewards.combo, 0);
+});
+
+test("Recruited clamp moves through corridors and synthesizes during ordinary play", () => {
+  const game = createGame();
+  game.buddy.active = true;
+  game.phase = "playing";
+  game.enzymes = [];
+  for (let i = 0; i < 300; i++) tick(game, 1 / 60);
+  assert.ok(game.coverage.covered.size > 0);
+  assert.ok(
+    game.maze.corridors.some(
+      (p) => p.x === game.buddy.actor.position.x && p.y === game.buddy.actor.position.y,
+    ),
+  );
+});
+
+test("sliding clamp must appear and be collected before it helps", () => {
+  const game = createGame();
+  game.phase = "playing";
+  game.enzymes = [];
+  game.player.actor = createActor(game.buddy.actor.position);
+  tick(game, 0);
+  assert.equal(game.buddy.active, false);
+  game.time = 5;
+  tick(game, 0);
+  assert.equal(game.buddy.active, true);
+});
+
+test("an uncollected clamp cannot rescue a collision", () => {
+  const game = createGame();
+  game.phase = "playing";
+  game.enzymes[0].actor = createActor(game.player.actor.position);
+  tick(game, 0);
+  assert.equal(game.phase, "dying");
+});
+
+test("lowering difficulty applies its coverage goal to the current cycle", () => {
+  const game = createGame();
+  game.phase = "playing";
+  game.difficulty = 5;
+  const edges = [...game.maze.edges.keys()];
+  for (const edge of edges.slice(0, Math.ceil(edges.length * 0.5))) markEdge(game.coverage, edge);
+  tick(game, 0);
+  assert.equal(game.phase, "playing");
+  game.difficulty = 1;
+  tick(game, 0);
+  assert.equal(game.phase, "cycle_complete");
 });

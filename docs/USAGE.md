@@ -7,13 +7,24 @@ primer to start leaving synthesized DNA behind you.
 
 Either goal advances the level:
 
-- Cover **50% of the template edges** with DNA.
+- Cover **60% of the template edges at default Easy difficulty** with DNA.
 - Collect **every primer**.
 
-You do not need both. Coverage counts corridor links, not screen pixels. Each
-fully traversed fresh link scores 10 bases while Taq is primed. Walking the same
-covered link again adds no score. Exo, and later RNase, can chew covered links
-back after a delay; you can synthesize those links again.
+Coverage targets follow difficulty: Chill 50%, Easy 60%, Lively 70%, Classic 80%,
+and Wild 90%. Changes apply during the current cycle. Collecting all primers
+always clears a cycle at every difficulty.
+
+## Sliding clamp helper
+
+A mint protein ring appears near the starting area five seconds into each cycle.
+Collect it to recruit the sliding-clamp-inspired helper. Until collected it cannot
+build DNA, distract enemies, or rescue Taq. The ring is an optional power-up and
+never adds to the primer goal.
+
+Once recruited, the clamp follows Taq and builds or repairs DNA along its route.
+It periodically distracts Exo when far from Taq and rescues a dangerous collision
+with three seconds of protection, followed by a 20-second recharge. The dashboard
+shows rescue readiness. Each new cycle offers a fresh clamp to collect.
 
 ## Controls
 

@@ -1,7 +1,6 @@
 import { createActor, moveActor } from "./actor";
 import type { Actor } from "./actor";
-import { directions, tileKey } from "./coords";
-import { neighbor } from "./maze";
+import { tileKey } from "./coords";
 import type { Maze } from "./maze";
 import { routeDirection } from "./routing";
 
@@ -62,7 +61,7 @@ export function createBonus(maze: Maze, cycle: number): Bonus {
 export function advanceBonus(bonus: Bonus, maze: Maze, seconds: number): void {
   if (bonus.finished) return;
   bonus.age += seconds;
-  bonus.exiting = bonus.age >= 12;
+  bonus.exiting = bonus.age >= 40;
   const exit = maze.corridors.find((position) => position.x === maze.width - 1);
   if (!exit) throw new Error("Reagent exit requires a tunnel");
   const exitTile = exit;
@@ -75,10 +74,13 @@ export function advanceBonus(bonus: Bonus, maze: Maze, seconds: number): void {
       bonus.actor.queued = routeDirection(maze, bonus.actor.position, exitTile, false) ?? "right";
       return;
     }
-    const candidates = directions.filter((direction) =>
-      neighbor(maze, bonus.actor.position, direction),
-    );
-    bonus.actor.queued = candidates[bonus.turns++ % candidates.length] ?? "right";
+    const stops = maze.activators.length ? maze.activators : [maze.start];
+    let target = stops[bonus.turns % stops.length] ?? maze.start;
+    if (tileKey(bonus.actor.position) === tileKey(target)) {
+      bonus.turns++;
+      target = stops[bonus.turns % stops.length] ?? maze.start;
+    }
+    bonus.actor.queued = routeDirection(maze, bonus.actor.position, target, false) ?? "right";
   }
   if (!bonus.actor.destination && bonus.age > seconds && steer() === false) return;
   moveActor(bonus.actor, maze, seconds * 3, steer);

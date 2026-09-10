@@ -32,3 +32,22 @@ test("exiting reagents reach the tunnel from every corridor and stop there", () 
     }
   }
 });
+
+test("reagents tour upper and lower interior corridors before exiting", () => {
+  for (const cycle of [1, 2, 3, 4]) {
+    const maze = mazeForCycle(cycle);
+    const bonus = createBonus(maze, cycle);
+    const visited = new Set();
+    let upper = false;
+    let lower = false;
+    for (let frame = 0; frame < 2400; frame++) {
+      advanceBonus(bonus, maze, 1 / 60);
+      const position = bonus.actor.position;
+      visited.add(tileKey(position));
+      upper ||= position.y < maze.height / 3 && position.x > maze.width / 3;
+      lower ||= position.y > (maze.height * 2) / 3 && position.x > maze.width / 3;
+    }
+    assert.ok(visited.size > 30, `cycle ${cycle} remained near its entry`);
+    assert.ok(upper && lower, `cycle ${cycle} did not tour both halves`);
+  }
+});

@@ -1,18 +1,25 @@
+import type { ReadOnly } from "../game/read_only";
+import { drawEnemy } from "./enemy_animation";
 import { actorLocation } from "../game/actor";
 import { tileKey } from "../game/coords";
 import { paintMaze } from "./maze_painter";
-import { loadSprites } from "./sprite_atlas";
+import { loadSprites, reagentSprite } from "./sprite_atlas";
 import { createStrandLayer } from "./strand_layer";
 import { drawDeath } from "./animation";
 import { drawCelebration } from "./celebration";
 import type { Game } from "../game/game_state";
 export function createRenderer(
   canvas: HTMLCanvasElement,
-  game: Readonly<Game>,
+  game: ReadOnly<Game>,
 ): { draw: () => void; dispose: () => void } {
   const atlas = loadSprites();
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-  const strands = createStrandLayer();
+  const style = getComputedStyle(document.documentElement);
+  const strands = createStrandLayer({
+    primary: style.getPropertyValue("--color-strand").trim(),
+    secondary: style.getPropertyValue("--color-strand-secondary").trim(),
+    rungs: style.getPropertyValue("--color-strand-rungs").trim(),
+  });
   const context = canvas.getContext("2d");
   if (!context) throw new Error("Canvas 2D is unavailable");
   let maze = game.maze;
@@ -25,10 +32,11 @@ export function createRenderer(
   const deathInk = deathBoard.getContext("2d");
   const layerContext = layer.getContext("2d");
   if (!layerContext) throw new Error("Maze layer is unavailable");
-  const backbone = getComputedStyle(document.documentElement).getPropertyValue("--color-backbone");
+  const backbone = style.getPropertyValue("--color-backbone");
   paintMaze(layerContext, maze, 24, backbone);
   function resize(): void {
     const ratio = window.devicePixelRatio || 1;
+    atlas.resize(ratio);
     canvas.width = Math.round(canvas.clientWidth * ratio);
     canvas.height = Math.round(canvas.clientHeight * ratio);
     context?.clearRect(0, 0, canvas.width, canvas.height);
@@ -52,7 +60,11 @@ export function createRenderer(
     }
     context.drawImage(layer, 0, 0);
     context.restore();
-    strands.paint(context, maze, game.coverage);
+    if (game.phase === "attract") {
+      const backdrop = atlas.get("helix_backdrop");
+      if (backdrop) context.drawImage(backdrop, 0, 0, layer.width, layer.height);
+    }
+    strands.paint(context, maze, game.coverage, game.time, reducedMotion.matches);
     if (game.phase === "playing" && game.time - game.lastProgressTime > 15) {
       context.save();
       context.strokeStyle = "#fff1a3";
@@ -71,14 +83,38 @@ export function createRenderer(
     context.fillStyle = "#ffdc70";
     for (const primer of maze.primers) {
       const sprite = atlas.get("primer");
-      if (game.primers.has(tileKey(primer)) && sprite?.complete && sprite.naturalWidth)
-        context.drawImage(sprite, (primer.x + 0.5) * 24 - 9, (primer.y + 0.5) * 24 - 4.5, 18, 9);
+      if (game.primers.has(tileKey(primer)) && sprite) {
+        const pulse = reducedMotion.matches
+          ? 1
+          : 1 + 0.12 * Math.sin(game.time * 3 + primer.x + primer.y);
+        context.drawImage(
+          sprite,
+          (primer.x + 0.5) * 24 - 9 * pulse,
+          (primer.y + 0.5) * 24 - 4.5 * pulse,
+          18 * pulse,
+          9 * pulse,
+        );
+      }
+    }
+    const buddy = actorLocation(game.buddy.actor, maze);
+    const buddySprite = atlas.get("buddy");
+    if (buddySprite && game.phase !== "attract" && (game.buddy.active || game.time >= 5)) {
+      context.save();
+      if (!game.buddy.active || game.buddy.distraction > 0) {
+        context.strokeStyle = "#9cf0ce";
+        context.lineWidth = 2;
+        context.beginPath();
+        context.arc(buddy.x * 24, buddy.y * 24, 14, 0, Math.PI * 2);
+        context.stroke();
+      }
+      context.drawImage(buddySprite, buddy.x * 24 - 10, buddy.y * 24 - 10, 20, 20);
+      context.restore();
     }
     const location = actorLocation(game.player.actor, maze);
     for (const activator of maze.activators) {
       if (!game.activators.has(tileKey(activator))) continue;
       const power = atlas.get("hot_start");
-      if (power?.complete && power.naturalWidth)
+      if (power)
         context.drawImage(
           power,
           (activator.x + 0.5) * 24 - 9,
@@ -87,8 +123,12 @@ export function createRenderer(
           18,
         );
     }
-    const taq = atlas.get("taq_man");
-    if (game.phase !== "dying" && taq?.complete && taq.naturalWidth) {
+    const closing =
+      !reducedMotion.matches &&
+      game.player.actor.destination !== undefined &&
+      Math.floor(game.time * 8) % 2 === 1;
+    const taq = atlas.get(closing ? "taq_man_closed" : "taq_man");
+    if (game.phase !== "dying" && taq) {
       context.save();
       context.translate(location.x * 24, location.y * 24);
       const angle = { right: 0, down: Math.PI / 2, left: Math.PI, up: -Math.PI / 2 };
@@ -110,8 +150,9 @@ export function createRenderer(
           : enzyme.mode === "frightened"
             ? "frightened"
             : enzyme.name,
+        enzyme.actor.direction,
       );
-      if (sprite?.complete && sprite.naturalWidth) {
+      if (sprite) {
         context.save();
         if (enzyme.mode === "frightened") {
           const expiring = game.frightened < 2;
@@ -124,7 +165,8 @@ export function createRenderer(
             context.strokeRect(enemy.x * 24 - 14, enemy.y * 24 - 14, 28, 28);
           }
         }
-        context.drawImage(sprite, enemy.x * 24 - 13, enemy.y * 24 - 13, 26, 26);
+        context.translate(enemy.x * 24, enemy.y * 24);
+        drawEnemy(context, sprite, enzyme, game.time, reducedMotion.matches);
         context.restore();
         continue;
       }
@@ -140,8 +182,8 @@ export function createRenderer(
     }
     if (game.bonus) {
       const reagent = actorLocation(game.bonus.actor, maze);
-      const bonusSprite = atlas.get("reagent_magnesium");
-      if (bonusSprite?.complete && bonusSprite.naturalWidth)
+      const bonusSprite = atlas.get(reagentSprite(game.bonus.name));
+      if (bonusSprite)
         context.drawImage(bonusSprite, reagent.x * 24 - 14, reagent.y * 24 - 14, 28, 28);
     }
     if (game.phase === "dying") {
@@ -168,5 +210,11 @@ export function createRenderer(
         reducedMotion.matches,
       );
   }
-  return { draw, dispose: () => observer.disconnect() };
+  return {
+    draw,
+    dispose: (): void => {
+      observer.disconnect();
+      atlas.dispose();
+    },
+  };
 }

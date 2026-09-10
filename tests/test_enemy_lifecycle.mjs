@@ -89,3 +89,30 @@ test("eaten enemies return, stop at the house, and leave after recovery", () => 
     assert.notEqual(tileKey(enemy.actor.position), tileKey(maze.house));
   }
 });
+
+test("tunnels slow live enemies but preserve returning-eye speed", () => {
+  function progress(row, mode) {
+    const maze = parseMaze(["#####", row, "#####"]);
+    const enemies = createEnzymes(maze).slice(0, 1);
+    const enemy = enemies[0];
+    enemy.mode = mode;
+    enemy.actor = createActor(tile(0, 1));
+    enemy.actor.direction = "right";
+    enemy.actor.queued = "right";
+    enemy.actor.destination = tile(1, 1);
+    advanceEnzymes(
+      enemies,
+      maze,
+      createActor(maze.start),
+      1,
+      0.01,
+      false,
+      () => {},
+      levelForCycle(1),
+      "chase",
+    );
+    return enemy.actor.progress;
+  }
+  assert.ok(progress("T.P.T", "chase") < progress("..P..", "chase"));
+  assert.equal(progress("T.P.T", "eaten"), progress("..P..", "eaten"));
+});

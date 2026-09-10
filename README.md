@@ -7,7 +7,7 @@ A playful browser chase game for arcade fans: steer Taq polymerase through DNA m
 ## Synthesize your escape route
 
 Collect a primer, then turn fresh corridors into DNA. Clear a cycle by covering
-**50% of template edges OR collecting every primer**. You never need both.
+**60% of template edges at default Easy difficulty OR collecting every primer**. You never need both.
 
 <!-- screenshots:begin (managed by screenshot-docs) -->
 ![Paused game showing Taq's helix trail, connected maze walls, and the side dashboard with difficulty and scanline sliders](docs/screenshots/gameplay.png)
@@ -22,8 +22,8 @@ DNA. The dashboard stays beside the maze on desktop and stacks below it on phone
 - Choose difficulty from Chill to Wild; Easy is the default.
 - Independent music and FX controls, adjustable CRT scanlines, and reduced-motion support.
 
-**Status:** playable and actively developed. Some reagent artwork and visual polish
-remain unfinished; full-run acceptance across every maze is still in progress.
+**Status:** playable and actively developed. Visual polish and full-run acceptance
+across every maze are still in progress.
 
 ## Your first cycle
 

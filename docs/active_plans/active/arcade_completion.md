@@ -72,7 +72,7 @@ doers initially: two. Parallel-plan ready: yes for A2/A4 only; other work is dep
   chew-back. Target a 60fps budget; investigate sustained frame work exceeding 16.7ms.
 - Pacing report records completion time, deaths, final-edge search time, and net coverage
   over time. If coverage stalls, change level tuning or enemy behavior from this evidence;
-  preserve the user-revised 50% edge coverage OR all primers win condition.
+  preserve the user-revised difficulty-scaled edge coverage (50/60/70/80/90%, default 60%) OR all primers win condition.
 - An independent review checks mechanics and visual results against the original plan.
   Visual criticism identifies a specific readability, feedback, control, or layout failure.
 

@@ -1,8 +1,9 @@
+import type { ReadOnly } from "../game/read_only";
 import type { Maze } from "../game/maze";
 
 export function paintMaze(
   context: CanvasRenderingContext2D,
-  maze: Maze,
+  maze: ReadOnly<Maze>,
   size: number,
   backbone: string,
 ): void {

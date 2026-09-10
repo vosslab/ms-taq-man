@@ -5,6 +5,8 @@
   --color-backbone: #50cff7;
   --color-primer: #ffdc70;
   --color-strand: #74efbd;
+  --color-strand-secondary: #84bfff;
+  --color-strand-rungs: #bddbb7;
   --color-exo: #ff657d;
   --color-dimer: #f79cdc;
   --color-chelate: #64def3;
@@ -22,6 +24,7 @@ body { margin: 0; }
 .game-sidebar p { margin: 12px 0; line-height: 1.4; }
 .game-sidebar output { color: var(--color-primer); font-variant-numeric: tabular-nums; }
 .game-sidebar .reward-message { min-height: 2.8em; color: var(--color-primer); font-weight: bold; }
+.reagent-tray { display: flex; flex-wrap: wrap; gap: 8px; padding: 8px; border: 1px solid #294f65; border-radius: 8px; }
 .game-sidebar .coverage-meter { flex-wrap: wrap; }
 .game-sidebar .coverage-meter progress { flex-basis: 100%; }
 .phase-panel:empty { display: none; }
@@ -65,4 +68,23 @@ button:focus-visible, canvas:focus-visible { outline: 3px solid var(--color-prim
   .cabinet { margin: 10px auto; }
   h1 { margin-bottom: 8px; }
   .cabinet > p { margin: 8px 0; font-size: .8rem; }
+}
+.game-logo { display: block; width: min(100%, 480px); height: auto; margin: 0 auto; }
+@media (prefers-color-scheme: light) {
+  :root {
+    color-scheme: light;
+    --color-ground: #edf5f7;
+    --color-text: #173347;
+  }
+  .game-sidebar {
+    background: #ffffff;
+    border-color: #7496a5;
+    --color-primer: #805000;
+    --color-strand: #17644d;
+  }
+  .phase-panel { background: #e8f3ef; }
+  .reagent-tray { background: #102031; border-color: #7496a5; }
+  button { background: #e0eef4; border-color: #39768e; }
+  button:focus-visible { outline-color: #805000; }
+  footer { color: #17644d; }
 }

@@ -15,7 +15,7 @@ Confirmed decisions:
   personalities, moving bonus items, scatter/chase waves, frightened mode, tunnels, intermissions.
 - **Core loop change:** pellets are **primers**, not dNTPs. Collecting a primer anneals it;
   everywhere Taq then walks it **extends DNA behind itself**, leaving a permanent synthesized
-  strand. A cycle clears at 50% template-edge coverage OR when every primer is collected.
+  strand. A cycle clears at the difficulty-scaled template-edge coverage target (default 60%) OR when every primer is collected.
   Synthesized DNA remains a visible tangled trail and a source of points.
 - SolidJS owns the DOM shell (title, HUD, menus, interstitials, settings). Canvas owns the
   60fps game surface. Sprites are hand-authored `.svg` files. CSS owns theming and cabinet chrome.
@@ -54,7 +54,7 @@ concretely.
 - **Nucleases chew back.** When `Exo` (and, at higher cycles, `RNase`) crosses a covered edge, that
   edge degrades back to uncovered after a short delay and its ribbon fades out. Coverage is a
   contested resource, not a monotonic fill.
-- Cycle clears at 50% edge coverage OR when all primers are collected (user revision). Primers respawn per cycle; a cycle needs at least one primer
+- Cycle clears at difficulty-scaled edge coverage (50/60/70/80/90%, default 60%) OR when all primers are collected (user revision). Primers respawn per cycle; a cycle needs at least one primer
   collected before any progress is possible.
 - **Visual payoff:** each ribbon is drawn with a per-edge random seed (jitter, phase offset, slight
   overshoot past the junction), so repeated passes and re-extensions pile into a messy nest rather

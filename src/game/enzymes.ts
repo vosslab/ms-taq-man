@@ -91,6 +91,7 @@ export function advanceEnzymes(
   level: Level,
   wave: WaveMode,
   speedMultiplier = 1,
+  distraction?: Tile,
 ): void {
   const exo = enzymes[0];
   if (!exo) return;
@@ -116,16 +117,18 @@ export function advanceEnzymes(
           ? maze.house
           : inHouse
             ? maze.houseExit
-            : mode === "scatter" || mode === "frightened"
-              ? corner
-              : targetTile(
-                  enzyme.name,
-                  player.position,
-                  player.direction,
-                  exo!.actor.position,
-                  position,
-                  corner,
-                );
+            : distraction && enzyme.name === "exo" && mode !== "frightened"
+              ? distraction
+              : mode === "scatter" || mode === "frightened"
+                ? corner
+                : targetTile(
+                    enzyme.name,
+                    player.position,
+                    player.direction,
+                    exo!.actor.position,
+                    position,
+                    corner,
+                  );
       const transit = inHouse || mode === "eaten";
       enzyme.actor.queued = transit
         ? (routeDirection(maze, position, target) ?? enzyme.actor.direction)
@@ -134,10 +137,17 @@ export function advanceEnzymes(
           : chooseDirection(enzyme.actor, maze, target, false);
     }
     if (!enzyme.actor.destination && !reversing) steer();
+    const position = enzyme.actor.position;
+    const destination = enzyme.actor.destination;
+    const inTunnel =
+      maze.rows[position.y]?.[position.x] === "T" ||
+      (destination !== undefined && maze.rows[destination.y]?.[destination.x] === "T");
+    const tunnelMultiplier = inTunnel && mode !== "eaten" ? 0.65 : 1;
     moveActor(
       enzyme.actor,
       maze,
       seconds *
+        tunnelMultiplier *
         (mode === "eaten" ? 8 : (mode === "frightened" ? 2.8 : level.enemySpeed) * speedMultiplier),
       (from, to): void | false => {
         if (
