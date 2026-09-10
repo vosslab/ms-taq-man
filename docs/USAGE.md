@@ -28,7 +28,8 @@ lets Taq pass through enemies; it does not make them edible. Newly built clamp
 DNA glows briefly and announces its added bases in the dashboard. Clamp-built
 DNA stays violet/pink; Taq-built DNA is green/blue. Rewalking preserves the color.
 If DNA is chewed away, its next builder determines the replacement color. The dashboard
-shows rescue readiness. Each new cycle offers a fresh clamp to collect.
+meter names the clamp's current arrival, construction, repair, distraction, shield, or recharge
+state, and its color matches that state. Each new cycle offers a fresh clamp to collect.
 
 ## Controls
 
@@ -74,7 +75,8 @@ never removes points. Reagent pickups also help you:
 | Glycerol | Five seconds of speed and DNA protection |
 
 The dashboard identifies the available reagent and shows active boosts. DNA
-protection prevents chew-back; hot-start protection lets you capture enemies.
+protection prevents chew-back; hot-start protection lets you capture enemies. DNA queued for
+enemy chew-back turns yellow before it disappears, so you can steer toward it or let Buddy help.
 
 ## Sound and display
 

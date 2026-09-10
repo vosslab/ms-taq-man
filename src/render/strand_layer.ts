@@ -12,15 +12,17 @@ export function createStrandLayer(colors: StrandColors = defaultStrandColors): {
     coverage: ReadOnly<Coverage>,
     time: number,
     reducedMotion: boolean,
+    chewQueue?: ReadonlyMap<EdgeId, number>,
   ) => void;
 } {
+  type DrawnStrand = { seed: number; clamp: boolean };
   const layer = document.createElement("canvas");
   const candidate = layer.getContext("2d");
   if (!candidate) throw new Error("Strand canvas unavailable");
   const ink = candidate;
   let previousMaze: ReadOnly<Maze> | undefined;
   let revision = -1;
-  const drawn = new Map<EdgeId, number>();
+  const drawn = new Map<EdgeId, DrawnStrand>();
   const fading = new Map<EdgeId, { seed: number; started: number; clamp: boolean }>();
   const dirtyMargin = 8;
   function stamp(
@@ -29,12 +31,15 @@ export function createStrandLayer(colors: StrandColors = defaultStrandColors): {
     id: EdgeId,
     seed: number,
     clamp: boolean,
+    warning = false,
   ): void {
     const edge = maze.edges.get(id);
     if (!edge || !ink) return;
-    const inkColors = clamp
-      ? { primary: "#d4a0ff", secondary: "#ff9ce4", rungs: "#f8ddff" }
-      : colors;
+    const inkColors = warning
+      ? { primary: "#ffd166", secondary: "#ffe8a3", rungs: "#fff8cf" }
+      : clamp
+        ? { primary: "#d4a0ff", secondary: "#ff9ce4", rungs: "#f8ddff" }
+        : colors;
     const jitter = ((seed % 13) - 6) * 0.18;
     const phase = ((seed % 101) / 101) * Math.PI * 2 + ((seed >> 3) % 17) * 0.07;
     const ax = (edge.a.x + 0.5) * 24;
@@ -52,6 +57,7 @@ export function createStrandLayer(colors: StrandColors = defaultStrandColors): {
     coverage: ReadOnly<Coverage>,
     time: number,
     reducedMotion: boolean,
+    chewQueue?: ReadonlyMap<EdgeId, number>,
   ): void {
     if (maze !== previousMaze) {
       layer.width = maze.width * 24;
@@ -63,15 +69,23 @@ export function createStrandLayer(colors: StrandColors = defaultStrandColors): {
     }
     if (coverage.revision !== revision) {
       const changed = new Set<EdgeId>();
-      for (const [id, seed] of drawn) {
-        if (!coverage.covered.has(id) || seed !== coverage.seeds.get(id)) {
+      for (const [id, previous] of drawn) {
+        const clamp = coverage.clampBuilt.has(id);
+        if (
+          !coverage.covered.has(id) ||
+          previous.seed !== coverage.seeds.get(id) ||
+          previous.clamp !== clamp
+        ) {
           changed.add(id);
           if (!coverage.covered.has(id) && !reducedMotion)
-            fading.set(id, { seed, started: time, clamp: coverage.clampBuilt.has(id) });
+            fading.set(id, { seed: previous.seed, started: time, clamp: previous.clamp });
         }
       }
       for (const id of coverage.covered) {
-        if (drawn.get(id) !== coverage.seeds.get(id)) changed.add(id);
+        const seed = coverage.seeds.get(id) ?? 0;
+        const clamp = coverage.clampBuilt.has(id);
+        const previous = drawn.get(id);
+        if (!previous || previous.seed !== seed || previous.clamp !== clamp) changed.add(id);
         fading.delete(id);
       }
       // Clip the union once so intersecting repairs never double-stamp a strand.
@@ -119,14 +133,20 @@ export function createStrandLayer(colors: StrandColors = defaultStrandColors): {
         drawn.clear();
         for (const id of coverage.covered) {
           const seed = coverage.seeds.get(id) ?? 0;
-          stamp(ink, maze, id, seed, coverage.clampBuilt.has(id));
-          drawn.set(id, seed);
+          const clamp = coverage.clampBuilt.has(id);
+          stamp(ink, maze, id, seed, clamp);
+          drawn.set(id, { seed, clamp });
         }
       }
       ink.restore();
       revision = coverage.revision;
     }
     context.drawImage(layer, 0, 0);
+    for (const [id, due] of chewQueue ?? []) {
+      if (!coverage.covered.has(id) || due <= time) continue;
+      const seed = coverage.seeds.get(id) ?? 0;
+      stamp(context, maze, id, seed, coverage.clampBuilt.has(id), true);
+    }
     if (reducedMotion) fading.clear();
     for (const [id, fade] of fading) {
       const remaining = 1 - Math.max(0, time - fade.started) / 0.6;

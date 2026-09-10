@@ -18,6 +18,7 @@ type StrandLayer = {
     coverage: Coverage,
     time: number,
     reducedMotion: boolean,
+    chewQueue?: ReadonlyMap<string, number>,
   ) => void;
 };
 type StrandHarness = {
@@ -25,6 +26,7 @@ type StrandHarness = {
   createStrandLayer: () => StrandLayer;
   degradeEdge: (coverage: Coverage, id: string) => boolean;
   markEdge: (coverage: Coverage, id: string, clamp?: boolean) => boolean;
+  reinforceEdge: (coverage: Coverage, id: string) => boolean;
   mazeForCycle: (cycle: number) => Maze;
   paintMaze: (context: CanvasRenderingContext2D, maze: Maze, size: number, color: string) => void;
 };
@@ -37,7 +39,7 @@ declare global {
 
 const BUNDLE_ENTRY = [
   'export { createStrandLayer } from "./src/render/strand_layer";',
-  'export { createCoverage, markEdge, degradeEdge } from "./src/game/coverage";',
+  'export { createCoverage, markEdge, reinforceEdge, degradeEdge } from "./src/game/coverage";',
   'export { mazeForCycle } from "./src/game/maze_layouts";',
   'export { paintMaze } from "./src/render/maze_painter";',
 ].join("\n");
@@ -217,6 +219,89 @@ test("chewed strands fade, disappear, and restart with a fresh seeded ribbon", a
   expect(result.rebuilt.alpha).toBeGreaterThan(0);
   expect(result.secondSeed).not.toBe(result.firstSeed);
   expect(result.rebuilt.checksum).not.toBe(result.original.checksum);
+});
+
+test("queued chew-back overlays DNA yellow before its deadline", async ({ page }) => {
+  await loadStrandHarness(page);
+  const result = await page.evaluate(() => {
+    const maze = window.strandHarness.mazeForCycle(1);
+    const coverage = window.strandHarness.createCoverage();
+    const entry = [...maze.edges.entries()].find(([, edge]) => !edge.tunnel);
+    if (!entry) throw new Error("Cycle 1 has no ordinary edge");
+    const [id] = entry;
+    window.strandHarness.markEdge(coverage, id);
+    const layer = window.strandHarness.createStrandLayer();
+    const canvas = document.createElement("canvas");
+    canvas.width = maze.width * 24;
+    canvas.height = maze.height * 24;
+    const context = canvas.getContext("2d");
+    if (!context) throw new Error("Canvas context unavailable");
+    const ink = context;
+    function yellowPixels(): number {
+      const pixels = ink.getImageData(0, 0, canvas.width, canvas.height).data;
+      let count = 0;
+      for (let index = 0; index < pixels.length; index += 4) {
+        if (
+          pixels[index] === 255 &&
+          pixels[index + 1] === 209 &&
+          pixels[index + 2] === 102 &&
+          pixels[index + 3] === 255
+        )
+          count++;
+      }
+      return count;
+    }
+    layer.paint(ink, maze, coverage, 0, false, new Map([[id, 1]]));
+    const warning = yellowPixels();
+    ink.clearRect(0, 0, canvas.width, canvas.height);
+    layer.paint(ink, maze, coverage, 1, false, new Map([[id, 1]]));
+    const atDeadline = yellowPixels();
+    return { warning, atDeadline };
+  });
+  expect(result.warning).toBeGreaterThan(0);
+  expect(result.atDeadline).toBe(0);
+});
+
+test("clamp reinforcement repaints covered DNA from green to violet", async ({ page }) => {
+  await loadStrandHarness(page);
+  const result = await page.evaluate(() => {
+    const maze = window.strandHarness.mazeForCycle(1);
+    const coverage = window.strandHarness.createCoverage();
+    const entry = [...maze.edges.entries()].find(([, edge]) => !edge.tunnel);
+    if (!entry) throw new Error("Cycle 1 has no ordinary edge");
+    const [id] = entry;
+    window.strandHarness.markEdge(coverage, id);
+    const layer = window.strandHarness.createStrandLayer();
+    const canvas = document.createElement("canvas");
+    canvas.width = maze.width * 24;
+    canvas.height = maze.height * 24;
+    const context = canvas.getContext("2d");
+    if (!context) throw new Error("Canvas context unavailable");
+    const ink = context;
+    function colorPixels(red: number, green: number, blue: number): number {
+      const pixels = ink.getImageData(0, 0, canvas.width, canvas.height).data;
+      let count = 0;
+      for (let index = 0; index < pixels.length; index += 4) {
+        if (
+          pixels[index] === red &&
+          pixels[index + 1] === green &&
+          pixels[index + 2] === blue &&
+          pixels[index + 3] === 255
+        )
+          count++;
+      }
+      return count;
+    }
+    layer.paint(ink, maze, coverage, 0, false);
+    const originalGreen = colorPixels(101, 239, 187);
+    window.strandHarness.reinforceEdge(coverage, id);
+    ink.clearRect(0, 0, canvas.width, canvas.height);
+    layer.paint(ink, maze, coverage, 0.1, false);
+    const reinforcedViolet = colorPixels(212, 160, 255);
+    return { originalGreen, reinforcedViolet };
+  });
+  expect(result.originalGreen).toBeGreaterThan(0);
+  expect(result.reinforcedViolet).toBeGreaterThan(0);
 });
 
 test("all maze cycles paint non-empty double-stranded nests at DPR 1 and DPR 2", async ({

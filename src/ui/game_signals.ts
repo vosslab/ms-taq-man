@@ -1,4 +1,6 @@
 import { coverageTarget } from "../game/difficulty";
+import { buddyActivity } from "../game/buddy";
+import type { BuddyActivity } from "../game/buddy";
 import { batch, createSignal } from "solid-js";
 import type { Accessor } from "solid-js";
 import type { Game } from "../game/game_state";
@@ -21,6 +23,9 @@ type HudValues = {
   boosts: string;
   rewardMessage: string;
   reagent: string;
+  buddyActivity: BuddyActivity;
+  buddyStatus: string;
+  buddyMeter: number;
   collectedReagents: readonly string[];
 };
 export type GameSignals = { [Key in keyof HudValues]: Accessor<HudValues[Key]> } & {
@@ -42,6 +47,9 @@ export function createGameSignals(initial: Readonly<Game>): GameSignals {
   const [boosts, setBoosts] = createSignal("");
   const [rewardMessage, setRewardMessage] = createSignal("");
   const [reagent, setReagent] = createSignal("");
+  const [buddyActivitySignal, setBuddyActivity] = createSignal<BuddyActivity>("arriving");
+  const [buddyStatus, setBuddyStatus] = createSignal("");
+  const [buddyMeter, setBuddyMeter] = createSignal(0);
   const [collectedReagents, setCollectedReagents] = createSignal<readonly string[]>([]);
 
   function push(game: Readonly<Game>): void {
@@ -65,17 +73,13 @@ export function createGameSignals(initial: Readonly<Game>): GameSignals {
       setCollectedReagents(game.collectedReagents);
       setReagent(game.bonus ? `${game.bonus.name}: ${reagentDescription(game.bonus.name)}` : "");
       setRewardMessage(game.rewards.messageTimer > 0 ? game.rewards.message : "");
+      const activity = buddyActivity(game.buddy);
+      const buddyDisplay = describeBuddy(activity, game);
+      setBuddyActivity(activity);
+      setBuddyStatus(buddyDisplay.label);
+      setBuddyMeter(buddyDisplay.meter);
       setBoosts(
         [
-          game.buddy.protection > 0
-            ? `Clamp shield ${Math.ceil(game.buddy.protection)}s - enemies cannot hurt you`
-            : !game.buddy.active
-              ? game.time < 5
-                ? "Sliding clamp arriving soon"
-                : "Collect the mint protein ring to recruit your helper"
-              : game.buddy.rescueTimer > 0
-                ? `Clamp rescue recharges in ${Math.ceil(game.buddy.rescueTimer)}s`
-                : "Clamp rescue ready",
           game.rewards.combo >= 8
             ? `Synthesis x${Math.min(4, 1 + Math.floor(game.rewards.combo / 8))}`
             : "",
@@ -122,7 +126,34 @@ export function createGameSignals(initial: Readonly<Game>): GameSignals {
     boosts,
     rewardMessage,
     reagent,
+    buddyActivity: buddyActivitySignal,
+    buddyStatus,
+    buddyMeter,
     collectedReagents,
     push,
   };
+}
+
+function describeBuddy(
+  activity: BuddyActivity,
+  game: Readonly<Game>,
+): { label: string; meter: number } {
+  switch (activity) {
+    case "arriving":
+      return game.time < 5
+        ? { label: "Clamp arriving", meter: Math.min(100, (game.time / 5) * 100) }
+        : { label: "Collect the clamp", meter: 100 };
+    case "building":
+      return { label: "Building violet DNA", meter: 100 };
+    case "repairing":
+      return { label: "Repairing DNA to violet", meter: 100 };
+    case "shielding":
+      return { label: "Shielding Taq", meter: (game.buddy.protection / 3) * 100 };
+    case "distracting":
+      return { label: "Distracting Exo", meter: (game.buddy.distraction / 4) * 100 };
+    case "recharging":
+      return { label: "Rescue recharging", meter: (1 - game.buddy.rescueTimer / 20) * 100 };
+    case "following":
+      return { label: "Following Taq", meter: 100 };
+  }
 }

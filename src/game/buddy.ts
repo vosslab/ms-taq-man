@@ -5,10 +5,15 @@ import type { EdgeId } from "./coords";
 import type { Maze } from "./maze";
 import { routeDirection } from "./routing";
 
+export type BuddyActivity =
+  "arriving" | "following" | "building" | "repairing" | "shielding" | "distracting" | "recharging";
+
 export function createBuddy(maze: Maze): {
   protection: number;
   lastBuilt: EdgeId | undefined;
   buildGlow: number;
+  lastAction: "building" | "repairing" | undefined;
+  actionTimer: number;
   active: boolean;
   actor: Actor;
   buildTimer: number;
@@ -20,6 +25,8 @@ export function createBuddy(maze: Maze): {
     protection: 0,
     lastBuilt: undefined,
     buildGlow: 0,
+    lastAction: undefined,
+    actionTimer: 0,
     active: false,
     actor: createActor(
       maze.corridors.find(
@@ -33,6 +40,16 @@ export function createBuddy(maze: Maze): {
   };
 }
 export type Buddy = ReturnType<typeof createBuddy>;
+
+export function buddyActivity(buddy: Readonly<Buddy>): BuddyActivity {
+  if (!buddy.active) return "arriving";
+  if (buddy.protection > 0) return "shielding";
+  if (buddy.actionTimer > 0 && buddy.lastAction) return buddy.lastAction;
+  if (buddy.distraction > 0) return "distracting";
+  if (buddy.rescueTimer > 0) return "recharging";
+  return "following";
+}
+
 export function advanceBuddy(
   buddy: Buddy,
   maze: Maze,
@@ -43,6 +60,8 @@ export function advanceBuddy(
   if (!buddy.active) return;
   buddy.protection = Math.max(0, buddy.protection - seconds);
   buddy.buildGlow = Math.max(0, buddy.buildGlow - seconds);
+  buddy.actionTimer = Math.max(0, buddy.actionTimer - seconds);
+  if (buddy.actionTimer === 0) buddy.lastAction = undefined;
   buddy.buildTimer = Math.max(0, buddy.buildTimer - seconds);
   buddy.rescueTimer = Math.max(0, buddy.rescueTimer - seconds);
   buddy.distraction = Math.max(0, buddy.distraction - seconds);
@@ -59,7 +78,7 @@ export function advanceBuddy(
   moveActor(buddy.actor, maze, seconds * 3.4, (from, to) => {
     if (buddy.buildTimer <= 0) {
       build(edgeId(from, to));
-      buddy.buildTimer = 2;
+      buddy.buildTimer = 1.25;
     }
     steer();
   });

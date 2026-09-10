@@ -15,6 +15,11 @@
 - Buddy help must be understandable: its DNA construction should be visible,
   and it should not unexpectedly cause ghosts to be eaten.
 
+- Give the ghost house a fixed base and shape with a proper doorway. Show what Buddy is doing
+  with both color and a right-panel status bar; let it build and repair DNA into the clamp palette.
+
+- Turn DNA yellow before enemy chew-back removes it, and let primer pellets rotate slowly in place.
+
 - Default template coverage to advance is 60%; difficulty raises or lowers it.
   Collecting every primer remains an alternate cycle-clear condition.
 

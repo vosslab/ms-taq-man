@@ -43,9 +43,20 @@ export function Hud(props: { signals: GameSignals; highScore: number }): JSX.Ele
         <p>Clear the cycle: synthesize {props.signals.coverageGoal()}% OR collect every primer.</p>
       </section>
       <section class="helper-group" aria-label="Helper and boosts">
+        <div class="buddy-status" data-activity={props.signals.buddyActivity()}>
+          <p>
+            Buddy clamp <output>{props.signals.buddyStatus()}</output>
+          </p>
+          <progress
+            max="100"
+            value={props.signals.buddyMeter()}
+            aria-label={`Buddy status: ${props.signals.buddyStatus()}`}
+          />
+        </div>
         <p class="dna-key">
           DNA: <span class="taq-key">Taq = green/blue</span>;{" "}
-          <span class="clamp-key">clamp = violet/pink</span>.
+          <span class="clamp-key">clamp = violet/pink</span>;{" "}
+          <span class="warning-key">yellow = enemy chew-back warning</span>.
         </p>
         <p aria-label="Active boosts">{props.signals.boosts()}</p>
         <p aria-label="Available reagent">{props.signals.reagent()}</p>

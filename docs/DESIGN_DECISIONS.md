@@ -24,6 +24,22 @@ authoritative code or contract document, rather than a person.
 
 ## Software design
 
+### Visible maintenance states
+
+**Decision.** The renderer gives the enzyme house a fixed three-tile base with an open doorway,
+renders queued chew-back as yellow DNA, and derives Buddy color and dashboard status from its live
+activity. Buddy can reinforce ordinary player DNA into the clamp's violet/pink palette as well as
+rebuild a chewed edge.
+
+**Why.** The player needs to recognize the enemy spawn point, pending DNA loss, and Buddy's
+contribution without inferring them from simulation details.
+
+**Consequence.** Visual colors retain a matching text label in the HUD. Coverage ownership changes
+increment the coverage revision so the cached strand layer repaints the new clamp palette.
+
+**Owner.** `src/render/maze_painter.ts`, `src/render/strand_layer.ts`, `src/game/buddy.ts`,
+`src/game/coverage.ts`, and `src/ui/hud.tsx`.
+
 ### Synchronous read-only renderer frame view
 
 **Decision.** Canvas rendering consumes a recursively read-only live game view

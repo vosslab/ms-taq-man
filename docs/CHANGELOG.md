@@ -1,3 +1,15 @@
+## 2026-09-10
+
+### Additions and New Features
+
+- Give the enzyme house a fixed, door-marked base; rotate RNA primer pickups; render DNA queued
+  for chew-back in yellow; and show Buddy's action with a colored clamp sprite and accessible
+  right-panel status meter.
+
+- Let the recruited clamp reinforce ordinary player strands into the violet/pink clamp palette,
+  rebuild threatened DNA more often, and distinguish synthesis, repair, rescue, distraction, and
+  recharge states.
+
 ## 2026-09-09
 
 ### Additions and New Features

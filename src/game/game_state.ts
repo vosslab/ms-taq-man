@@ -3,7 +3,7 @@ import { actorLocation, queueDirection } from "./actor";
 import { advanceEnzymes, createEnzymes } from "./enzymes";
 import { tileKey } from "./coords";
 import type { Direction, EdgeId } from "./coords";
-import { createCoverage, degradeEdge, markEdge } from "./coverage";
+import { createCoverage, degradeEdge, markEdge, reinforceEdge } from "./coverage";
 import { enzymePoints } from "./score";
 import { firstMaze, mazeForCycle } from "./maze_layouts";
 import { advancePlayer, createPlayer } from "./player";
@@ -188,13 +188,24 @@ export function tick(game: Game, seconds: number): void {
     }
   }
   advanceBuddy(game.buddy, game.maze, game.player.actor, seconds, (edge) => {
-    game.chewQueue.delete(edge);
+    const repairingChewedDNA = game.chewQueue.delete(edge);
     if (!game.coverage.covered.has(edge)) {
       game.buddy.lastBuilt = edge;
       game.buddy.buildGlow = 1.2;
-      announce(game.rewards, "CLAMP BUILT DNA +10 bases");
+      game.buddy.lastAction = repairingChewedDNA ? "repairing" : "building";
+      game.buddy.actionTimer = 1.2;
+      announce(
+        game.rewards,
+        repairingChewedDNA ? "CLAMP REPAIRED DNA +10 bases" : "CLAMP BUILT DNA +10 bases",
+      );
+      recordEvent(game, { type: "buddy_extend", edge });
+    } else if (reinforceEdge(game.coverage, edge)) {
+      game.buddy.lastBuilt = edge;
+      game.buddy.buildGlow = 1.2;
+      game.buddy.lastAction = "repairing";
+      game.buddy.actionTimer = 1.2;
+      announce(game.rewards, "CLAMP REPAIRED DNA - violet strand reinforced");
     }
-    recordEvent(game, { type: "buddy_extend", edge });
   });
   // Reaching either goal completes the player's turn before enemies can undo it.
   if (

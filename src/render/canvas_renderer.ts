@@ -1,6 +1,7 @@
 import type { ReadOnly } from "../game/read_only";
 import { drawEnemy } from "./enemy_animation";
 import { actorLocation } from "../game/actor";
+import { buddyActivity } from "../game/buddy";
 import { tileKey } from "../game/coords";
 import { paintMaze } from "./maze_painter";
 import { loadSprites, reagentSprite } from "./sprite_atlas";
@@ -70,7 +71,7 @@ export function createRenderer(canvas: HTMLCanvasElement, game: ReadOnly<Game>):
       const backdrop = atlas.get("helix_backdrop");
       if (backdrop) context.drawImage(backdrop, 0, 0, layer.width, layer.height);
     }
-    strands.paint(context, maze, game.coverage, game.time, reducedMotion.matches);
+    strands.paint(context, maze, game.coverage, game.time, reducedMotion.matches, game.chewQueue);
     if (game.phase === "playing" && game.time - game.lastProgressTime > 15) {
       context.save();
       context.strokeStyle = "#fff1a3";
@@ -93,13 +94,16 @@ export function createRenderer(canvas: HTMLCanvasElement, game: ReadOnly<Game>):
         const pulse = reducedMotion.matches
           ? 1
           : 1 + 0.12 * Math.sin(game.time * 3 + primer.x + primer.y);
-        context.drawImage(
-          sprite,
-          (primer.x + 0.5) * 24 - 9 * pulse,
-          (primer.y + 0.5) * 24 - 4.5 * pulse,
-          18 * pulse,
-          9 * pulse,
-        );
+        const rotation = reducedMotion.matches
+          ? 0
+          : game.time * 0.55 + primer.x * 0.31 + primer.y * 0.17;
+        const centerX = (primer.x + 0.5) * 24;
+        const centerY = (primer.y + 0.5) * 24;
+        context.save();
+        context.translate(centerX, centerY);
+        context.rotate(rotation);
+        context.drawImage(sprite, -9 * pulse, -4.5 * pulse, 18 * pulse, 9 * pulse);
+        context.restore();
       }
     }
     if (game.buddy.buildGlow > 0 && game.buddy.lastBuilt) {
@@ -126,14 +130,25 @@ export function createRenderer(canvas: HTMLCanvasElement, game: ReadOnly<Game>):
     const buddy = actorLocation(game.buddy.actor, maze);
     const buddySprite = atlas.get("buddy");
     if (buddySprite && game.phase !== "attract" && (game.buddy.active || game.time >= 5)) {
+      const activity = buddyActivity(game.buddy);
+      const buddyAppearance = {
+        arriving: { color: "#9cf0ce", filter: "none" },
+        following: { color: "#64def3", filter: "hue-rotate(25deg) saturate(1.1)" },
+        building: { color: "#d4a0ff", filter: "hue-rotate(118deg) saturate(1.45)" },
+        repairing: { color: "#ff9ce4", filter: "hue-rotate(154deg) saturate(1.45)" },
+        shielding: { color: "#ffdc70", filter: "hue-rotate(48deg) saturate(1.35)" },
+        distracting: { color: "#ffad67", filter: "hue-rotate(-48deg) saturate(1.35)" },
+        recharging: { color: "#84bfff", filter: "hue-rotate(12deg) saturate(0.8)" },
+      }[activity];
       context.save();
-      if (!game.buddy.active || game.buddy.distraction > 0) {
-        context.strokeStyle = "#9cf0ce";
+      if (!game.buddy.active || activity !== "following") {
+        context.strokeStyle = buddyAppearance.color;
         context.lineWidth = 2;
         context.beginPath();
         context.arc(buddy.x * 24, buddy.y * 24, 14, 0, Math.PI * 2);
         context.stroke();
       }
+      context.filter = buddyAppearance.filter;
       context.drawImage(buddySprite, buddy.x * 24 - 10, buddy.y * 24 - 10, 20, 20);
       context.restore();
     }

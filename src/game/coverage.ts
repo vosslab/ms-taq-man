@@ -22,6 +22,12 @@ export function markEdge(coverage: Coverage, id: EdgeId, clamp = false): boolean
   coverage.seeds.set(id, seed + coverage.revision);
   return true;
 }
+export function reinforceEdge(coverage: Coverage, id: EdgeId): boolean {
+  if (!coverage.covered.has(id) || coverage.clampBuilt.has(id)) return false;
+  coverage.clampBuilt.add(id);
+  coverage.revision++;
+  return true;
+}
 export function degradeEdge(coverage: Coverage, id: EdgeId): boolean {
   if (!coverage.covered.delete(id)) return false;
   coverage.revision++;

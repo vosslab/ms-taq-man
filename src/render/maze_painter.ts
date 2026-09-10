@@ -88,4 +88,62 @@ export function paintMaze(
   }
   context.fill("evenodd");
   context.stroke();
+  paintEnzymeHouse(context, maze, size, backbone);
+}
+
+function paintEnzymeHouse(
+  context: CanvasRenderingContext2D,
+  maze: ReadOnly<Maze>,
+  size: number,
+  backbone: string,
+): void {
+  let doorX: number | undefined;
+  let doorY: number | undefined;
+  for (let y = 0; y < maze.height; y++) {
+    for (let x = 0; x < maze.width; x++) {
+      if (maze.rows[y]?.[x] !== "-") continue;
+      doorX = x;
+      doorY = y;
+    }
+  }
+  if (doorX === undefined || doorY === undefined) return;
+
+  const width = size * 3;
+  const height = size * 2;
+  const centerX = (doorX + 0.5) * size;
+  const left = centerX - width / 2;
+  const right = left + width;
+  const top = (doorY + 0.22) * size;
+  const bottom = top + height;
+  const corner = size * 0.22;
+  const doorwayHalfWidth = size * 0.34;
+  const doorwayHeight = size * 0.76;
+
+  context.save();
+  context.fillStyle = "#081323";
+  context.fillRect(left, top, width, height);
+  context.fillStyle = "#030812";
+  context.fillRect(centerX - doorwayHalfWidth, top - 1, doorwayHalfWidth * 2, doorwayHeight);
+  context.strokeStyle = backbone;
+  context.lineWidth = 2.2;
+  context.beginPath();
+  context.moveTo(left + corner, top);
+  context.lineTo(centerX - doorwayHalfWidth, top);
+  context.moveTo(centerX + doorwayHalfWidth, top);
+  context.lineTo(right - corner, top);
+  context.quadraticCurveTo(right, top, right, top + corner);
+  context.lineTo(right, bottom - corner);
+  context.quadraticCurveTo(right, bottom, right - corner, bottom);
+  context.lineTo(left + corner, bottom);
+  context.quadraticCurveTo(left, bottom, left, bottom - corner);
+  context.lineTo(left, top + corner);
+  context.quadraticCurveTo(left, top, left + corner, top);
+  context.stroke();
+  context.strokeStyle = "#ffdc70";
+  context.lineWidth = 1.4;
+  context.beginPath();
+  context.moveTo(centerX - doorwayHalfWidth, top + doorwayHeight);
+  context.lineTo(centerX + doorwayHalfWidth, top + doorwayHeight);
+  context.stroke();
+  context.restore();
 }
