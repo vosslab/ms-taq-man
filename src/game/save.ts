@@ -5,6 +5,7 @@ export type Save = {
   fxMuted: boolean;
   scanlines: boolean;
   scanlineStrength: number;
+  difficulty: number;
 };
 export const saveKey = "ms_taq_man";
 export function defaultSave(): Save {
@@ -15,6 +16,7 @@ export function defaultSave(): Save {
     fxMuted: true,
     scanlines: true,
     scanlineStrength: 3,
+    difficulty: 2,
   };
 }
 export function decodeSave(raw: string | null): Save {
@@ -38,6 +40,14 @@ export function decodeSave(raw: string | null): Save {
   return {
     version: 2,
     highScore: value.highScore,
+    difficulty:
+      "difficulty" in value &&
+      typeof value.difficulty === "number" &&
+      Number.isInteger(value.difficulty) &&
+      value.difficulty >= 1 &&
+      value.difficulty <= 5
+        ? value.difficulty
+        : 2,
     muted: "muted" in value && typeof value.muted === "boolean" ? value.muted : true,
     fxMuted: "fxMuted" in value && typeof value.fxMuted === "boolean" ? value.fxMuted : true,
     scanlines:

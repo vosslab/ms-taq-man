@@ -3,7 +3,7 @@
 ## Context
 
 This execution companion preserves the full scope of
-[splendid-gathering-tulip.md](../../../splendid-gathering-tulip.md).
+[splendid-gathering-tulip.md](../splendid-gathering-tulip.md).
 Current source includes four connected mazes, movement, coverage, targeting, waves,
 bonuses, saves, and six SVG sprites. Browser evidence covers basic movement, mobile
 controls, and reload persistence. It does not yet establish a complete, enjoyable run.

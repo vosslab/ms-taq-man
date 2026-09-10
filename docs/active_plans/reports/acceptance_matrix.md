@@ -1,7 +1,7 @@
 # Arcade acceptance ledger
 
 Status as of 2026-09-09. Authority: the root
-[splendid-gathering-tulip.md](../../../splendid-gathering-tulip.md) and the
+[splendid-gathering-tulip.md](../splendid-gathering-tulip.md) and the
 [arcade_completion.md](../active/arcade_completion.md) companion.
 This is an open ledger, not a completion certificate.
 

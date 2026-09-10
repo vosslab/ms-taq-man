@@ -9,6 +9,7 @@ test("v1 high scores migrate with quiet defaults", () => {
     fxMuted: true,
     scanlines: true,
     scanlineStrength: 3,
+    difficulty: 2,
   });
 });
 test("invalid and future saves cannot inject invalid scores", () => {

@@ -104,16 +104,20 @@ export function createRenderer(
     };
     for (const enzyme of game.enzymes) {
       const enemy = actorLocation(enzyme.actor, maze);
-      const sprite = atlas.get(enzyme.mode === "eaten" ? "eaten_eyes" : enzyme.name);
+      const sprite = atlas.get(
+        enzyme.mode === "eaten"
+          ? "eaten_eyes"
+          : enzyme.mode === "frightened"
+            ? "frightened"
+            : enzyme.name,
+      );
       if (sprite?.complete && sprite.naturalWidth) {
         context.save();
         if (enzyme.mode === "frightened") {
           const expiring = game.frightened < 2;
           const flash =
             expiring && !reducedMotion.matches && Math.floor(game.frightened * 4) % 2 === 0;
-          context.filter = flash
-            ? "brightness(0) invert(1)"
-            : "grayscale(1) sepia(1) hue-rotate(160deg) saturate(3)";
+          context.filter = flash ? "brightness(0) invert(1)" : "none";
           if (expiring && reducedMotion.matches) {
             context.strokeStyle = "#fff0a0";
             context.lineWidth = 2;

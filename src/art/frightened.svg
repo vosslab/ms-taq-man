@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Denatured frightened enzyme</title>
+  <g id="frightened_coil" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 48C-1 31 25 44 13 22S42 4 35 20S63 12 56 35S35 44 44 55S14 60 20 42S40 48 33 30" stroke="#172c69" stroke-width="12"/>
+    <path d="M8 48C-1 31 25 44 13 22S42 4 35 20S63 12 56 35S35 44 44 55S14 60 20 42S40 48 33 30" stroke="#8fb9ff" stroke-width="7"/>
+  </g>
+  <g id="frightened_face" fill="#ffffff" stroke="#172c69" stroke-width="2">
+    <ellipse cx="25" cy="27" rx="6" ry="8"/><ellipse cx="42" cy="27" rx="6" ry="8"/>
+    <path d="M23 43L28 39L33 43L38 39L43 43" fill="none" stroke="#ffffff" stroke-width="3"/>
+  </g>
+  <g id="frightened_pupils" fill="#172c69"><circle cx="25" cy="29" r="3"/><circle cx="42" cy="29" r="3"/></g>
+</svg>

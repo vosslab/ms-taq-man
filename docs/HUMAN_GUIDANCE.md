@@ -64,3 +64,4 @@ origin belongs there too. Rules: [REPO_STYLE.md](REPO_STYLE.md).
 - Use one 0-5 scanline strength control; 0 means off.
 - Move the music toward modern game music rather than simple 1980s arcade sounds;
   use your musical judgment.
+- Add a difficulty scale, for example by adjusting enemy speed.

@@ -90,6 +90,7 @@ export function advanceEnzymes(
   chew: (edge: EdgeId) => void,
   level: Level,
   wave: WaveMode,
+  speedMultiplier = 1,
 ): void {
   const exo = enzymes[0];
   if (!exo) return;
@@ -136,7 +137,8 @@ export function advanceEnzymes(
     moveActor(
       enzyme.actor,
       maze,
-      seconds * (mode === "eaten" ? 8 : mode === "frightened" ? 2.8 : level.enemySpeed),
+      seconds *
+        (mode === "eaten" ? 8 : (mode === "frightened" ? 2.8 : level.enemySpeed) * speedMultiplier),
       (from, to): void | false => {
         if (
           (enzyme.name === "exo" || (enzyme.name === "rnase" && level.chewers > 1)) &&
@@ -151,6 +153,7 @@ export function advanceEnzymes(
         steer();
       },
       true,
+      steer,
     );
   }
 }

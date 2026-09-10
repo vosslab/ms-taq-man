@@ -12,10 +12,13 @@ import { createMusic } from "./music";
 import { Overlays } from "./overlays";
 import { Hud } from "./hud";
 import { createGameSignals } from "./game_signals";
+import { difficultyLabel } from "../game/difficulty";
 
 export function App(): JSX.Element {
   let canvas!: HTMLCanvasElement;
   const game = createGame();
+  const [difficulty, setDifficulty] = createSignal(game.difficulty);
+  let rememberDifficulty: (value: number) => void = () => {};
   const hud = createGameSignals(game);
   const music = createMusic();
   const effects = createSoundEffects();
@@ -83,6 +86,13 @@ export function App(): JSX.Element {
     }
     if (storage) save = readSave(storage);
     setMuted(save.muted);
+    game.difficulty = save.difficulty;
+    setDifficulty(save.difficulty);
+    rememberDifficulty = (value: number): void => {
+      game.difficulty = value;
+      save.difficulty = value;
+      if (storage) writeSave(storage, save);
+    };
     setScanlineStrength(save.scanlines ? save.scanlineStrength : 0);
     rememberStrength = (value: number): void => {
       save.scanlineStrength = value;
@@ -240,6 +250,23 @@ export function App(): JSX.Element {
             />
           </label>
           <Overlays phase={hud.phase()} paused={hud.paused()} timer={hud.transitionTimer()} />
+          <label class="scanline-strength">
+            Difficulty: {difficulty()} / 5 · {difficultyLabel(difficulty())}
+            <input
+              type="range"
+              min="1"
+              max="5"
+              step="1"
+              value={difficulty()}
+              aria-label="Difficulty"
+              onInput={(event) => {
+                const value = event.currentTarget.valueAsNumber;
+                setDifficulty(value);
+                rememberDifficulty(value);
+              }}
+            />
+            Slower enemies at 1; faster enemies at 5. Change anytime.
+          </label>
           <Hud signals={hud} highScore={highScore()} />
           <TouchControls
             move={move}

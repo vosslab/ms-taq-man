@@ -2,6 +2,21 @@
 
 ### Additions and New Features
 
+- Refresh README with a verified live link, first-cycle example, local launch
+  instructions, current status, and documentation routes. Capture the current
+  cabinet in docs/screenshots/gameplay.png and embed it in the managed block.
+- Add tools/capture_gameplay.mjs for repeatable screenshot refreshes against the
+  local preview URL. Capture is 1920x1200 and includes all dashboard controls.
+
+- Document current simulation, rendering, browser lifecycle, audio, persistence,
+  and build boundaries, including known differences from the target architecture.
+
+- Replace frightened enemy recolors with an editable unraveled-protein sprite,
+  retaining expiry flashing and reduced-motion outlines.
+
+- Add a saved 1-5 difficulty slider controlling enemy speed, from 60% to 110%
+  of cycle tuning. Default to Easy (75%); changes apply during play.
+
 - Shift the soundtrack toward playful electronic music: filtered plucks, syncopated
   low bass, seventh chords, synthesized kick/snare/hi-hats, and drum fills.
 
@@ -85,6 +100,15 @@
   returning enemy state, and delayed Exo degradation of covered edges.
 
 ### Fixes and Maintenance
+
+- Let enemies steer at a junction reached after a partial reversal without
+  falsely reporting a completed edge or skipping the turn with leftover movement.
+
+- Repair plan links after the source plan moved under active_plans, and encode
+  touch-control glyphs as character references for repository encoding compliance.
+
+- Verify live enemy movement scales with difficulty while player speed stays
+  fixed, and document all five difficulty levels.
 
 - Verify collection effects for all reagent powers, including bonus points,
   boost timers, combo activation, and cancellation of scheduled chew-back.

@@ -10,11 +10,13 @@ import { levelForCycle, placePrimers } from "./level_table";
 import { advanceBonus, createBonus } from "./bonus";
 import type { Bonus } from "./bonus";
 import { waveMode } from "./waves";
+import { enemySpeedMultiplier } from "./difficulty";
 import { createRewards, advanceRewards, synthesisReward, announce } from "./arcade_rewards";
 
 export type GameEvent =
   { type: "extend"; edge: EdgeId } | { type: "direction"; direction: Direction };
 export function createGame(): {
+  difficulty: number;
   rewards: ReturnType<typeof createRewards>;
   maze: ReturnType<typeof firstMaze>;
   player: ReturnType<typeof createPlayer>;
@@ -43,6 +45,7 @@ export function createGame(): {
 } {
   const maze = firstMaze();
   return {
+    difficulty: 2,
     rewards: createRewards(),
     maze,
     player: createPlayer(maze),
@@ -72,7 +75,7 @@ export function createGame(): {
 export type Game = ReturnType<typeof createGame>;
 export function startGame(game: Game): void {
   if (game.phase !== "attract" && game.phase !== "game_over") return;
-  Object.assign(game, createGame());
+  Object.assign(game, createGame(), { difficulty: game.difficulty });
   game.phase = "ready";
   game.transitionTimer = 1;
 }
@@ -183,6 +186,7 @@ export function tick(game: Game, seconds: number): void {
     },
     level,
     waveMode(game.waveTime, game.cycle),
+    enemySpeedMultiplier(game.difficulty),
   );
   for (const [edge, due] of game.chewQueue) {
     if (due <= game.time) {

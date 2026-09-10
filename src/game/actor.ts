@@ -37,6 +37,7 @@ export function moveActor(
   distance: number,
   arrived: (from: Tile, to: Tile) => void | false,
   houseAccess = false,
+  returnedToStart?: () => void,
 ): void {
   let budget = distance;
   while (budget > 0) {
@@ -60,7 +61,7 @@ export function moveActor(
         actor.traversalStart.y !== actor.position.y
       ) {
         if (arrived(from, actor.position) === false) return;
-      }
+      } else returnedToStart?.();
     }
   }
 }

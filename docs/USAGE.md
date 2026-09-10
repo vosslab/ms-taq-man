@@ -63,6 +63,19 @@ protection prevents chew-back; hot-start protection lets you capture enemies.
 
 ## Sound and display
 
+The saved difficulty slider can change during play. It adjusts enemy movement
+while keeping Taq's speed and the two cycle-clear goals unchanged.
+
+| Difficulty | Enemy speed relative to original cycle tuning |
+| --- | --- |
+| 1 - Chill | 60% |
+| 2 - Easy (default) | 75% |
+| 3 - Lively | 90% |
+| 4 - Classic | 100% |
+| 5 - Wild | 110% |
+
+Returning eyes retain their normal house-return speed at every difficulty.
+
 - **Turn music on/off** controls the soundtrack.
 - **Turn FX on/off** independently controls pickup, protection, reward, death,
   and completion cues.
