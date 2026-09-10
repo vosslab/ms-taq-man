@@ -14,3 +14,13 @@ shows the actual traversal-triggered celebration.
 This proves one real browser keyboard cycle with active enemies, scoring, and
 rendering. It does not prove all four browser mazes, touch parity, human control
 feel, audio quality, or real-time frame pacing; the replay used controlled time.
+
+## Replay stability limit
+
+A subsequent attempt to automate this fixed-timestamp route in the regular browser
+suite diverged before the clear, stopping at 51.1% coverage with 11 primers.
+The same recorded route had previously cleared. Small frame/input alignment changes
+can alter queued turns, so this is not a stable regression oracle. Removed the
+fixed-route test from the regular suite; the successful capture above remains a
+single observed run. Replace it with state-observing steering for repeatable full-run
+acceptance. The attempted browser thermal-transition extension remains unverified.

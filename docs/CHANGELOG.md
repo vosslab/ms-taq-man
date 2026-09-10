@@ -2,6 +2,13 @@
 
 ### Additions and New Features
 
+- Remove the fixed-timestamp keyboard replay from the regular browser suite after
+  a rerun diverged to 51.1% coverage. Record the limitation: a successful observed
+  browser run is not a stable full-run regression; state-observing steering is needed.
+
+- Extend keyboard browser acceptance through thermal cycling into maze two,
+  checking carried bases and reset template coverage after the real transition.
+
 - Preserve the successful 48-input browser route as a controlled-clock Playwright
   acceptance test, asserting cycle completion and the amplified-template guidance
   through keyboard input alone.
